@@ -138,53 +138,20 @@ input {
   opacity: 1;
 }
 
+/* wrapper и сам input */
 .input-wrapper {
+  position: relative;
   display: flex;
   align-items: center;
-  position: relative;
   width: 100%;
   max-width: 29vh;
 }
 
+/* Шрифт минимум 16px, чтобы мобильники не зумили */
 .ruble-flex-input {
-  font-family: "Inter-SemiBold", sans-serif;
-  font-size: 2.8vh;
-  color: #ffffff;
-  background: transparent;
-  border: none;
-  outline: none;
-  width: 100%;
-  caret-color: #ffffff;
-  padding-right: 2.5vh;
-}
-
-.ruble-flex-input::placeholder {
-  color: rgba(255, 255, 255, 0.4);
-}
-
-.ruble-symbol {
-  font-family: "Inter-SemiBold", sans-serif;
-  font-size: 2.8vh;
-  color: #ffffff;
-  position: absolute;
-  right: 0;
-  pointer-events: none;
-  user-select: none;
-  display: none;
-}
-
-/* контейнер + базовый input */
-.calculator-container .input-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-  width: 100%;
-  max-width: 29vh;
-}
-
-.calculator-container .ruble-flex-input {
   font-family: "Inter-SemiBold", sans-serif !important;
-  font-size: 2.8vh !important;
+  /* минимум 16px, максимум 2.8vh */
+  font-size: clamp(16px, 2.8vh, 20px) !important;
   color: #ffffff !important;
   background: transparent !important;
   border: none !important;
@@ -195,23 +162,18 @@ input {
 }
 
 /* серый плейсхолдер «0» */
-.calculator-container .ruble-flex-input::placeholder {
+.ruble-flex-input::placeholder {
   color: rgba(255, 255, 255, 0.4) !important;
 }
 
-/* знак рубля, по умолчанию скрыт */
-.calculator-container .ruble-symbol {
+/* знак ₽ */
+.ruble-symbol {
   font-family: "Inter-SemiBold", sans-serif !important;
-  font-size: 2.8vh !important;
+  font-size: clamp(16px, 2.8vh, 20px) !important;
   color: #ffffff !important;
   position: absolute;
   right: 0;
   user-select: none;
   pointer-events: none;
   display: none;
-}
-
-/* когда введено хоть что-то — оба поля валидны (pattern="\d*") и :valid становится true */
-.calculator-container input:valid + .ruble-symbol {
-  display: inline;
 }
