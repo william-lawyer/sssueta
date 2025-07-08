@@ -143,7 +143,6 @@ input {
   align-items: center;
   position: relative;
   width: 100%;
-  font-family: "Inter-SemiBold", sans-serif;
   max-width: 29vh;
 }
 
@@ -156,7 +155,7 @@ input {
   outline: none;
   width: 100%;
   caret-color: #ffffff;
-  padding-right: 3vh;
+  padding-right: 2.5vh;
 }
 
 .ruble-flex-input::placeholder {
@@ -165,10 +164,10 @@ input {
 
 .ruble-symbol {
   font-family: "Inter-SemiBold", sans-serif;
-  position: absolute;
-  right: 0;
   font-size: 2.8vh;
   color: #ffffff;
+  position: absolute;
+  right: 0;
   pointer-events: none;
   user-select: none;
   display: none;
