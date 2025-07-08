@@ -138,7 +138,13 @@ input {
   opacity: 1;
 }
 
-/* wrapper и сам input */
+/* Глобальные хаки для мобильных */
+html {
+  -webkit-text-size-adjust: none; /* iOS Safari */
+  -ms-text-size-adjust: none; /* IE Mobile */
+}
+
+/* wrapper + input */
 .input-wrapper {
   position: relative;
   display: flex;
@@ -147,11 +153,10 @@ input {
   max-width: 29vh;
 }
 
-/* Шрифт минимум 16px, чтобы мобильники не зумили */
 .ruble-flex-input {
   font-family: "Inter-SemiBold", sans-serif !important;
-  /* минимум 16px, максимум 2.8vh */
-  font-size: clamp(16px, 2.8vh, 20px) !important;
+  font-weight: 600 !important;
+  font-size: 16px !important; /* жестко >=16px, чтобы не зумило */
   color: #ffffff !important;
   background: transparent !important;
   border: none !important;
@@ -159,17 +164,20 @@ input {
   width: 100%;
   padding-right: 2.5vh;
   caret-color: #ffffff !important;
+  /* дополнительный хак: */
+  -webkit-font-smoothing: antialiased;
 }
 
-/* серый плейсхолдер «0» */
+/* placeholder */
 .ruble-flex-input::placeholder {
   color: rgba(255, 255, 255, 0.4) !important;
 }
 
-/* знак ₽ */
+/* рубль */
 .ruble-symbol {
   font-family: "Inter-SemiBold", sans-serif !important;
-  font-size: clamp(16px, 2.8vh, 20px) !important;
+  font-weight: 600 !important;
+  font-size: 16px !important;
   color: #ffffff !important;
   position: absolute;
   right: 0;
