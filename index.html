@@ -1,282 +1,90 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Profile Card</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <style>
-      body {
-        background-color: #0b0b0d;
-      }
-      .main-container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 128px;
-      }
-      .user-name {
-        color: white;
-        font-family: "Inter-Regular", sans-serif;
-        font-size: 16px;
-        font-weight: 400;
-      }
-      .registration-date {
-        color: #ffffff;
-        font-family: "Inter-Regular", sans-serif;
-        font-size: 12px;
-        font-weight: 300;
-        opacity: 0.7;
-      }
-      .user-container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 8px;
-        margin-top: 40px;
-      }
-      .text-code {
-        color: #ffffff;
-        font-family: "Inter-Regular", sans-serif;
-        font-size: 16px;
-        font-weight: 300;
-        opacity: 0.7;
-      }
-      .code-container {
-        background: rgba(255, 255, 255, 0.05);
-        border-radius: 20px;
-        border: 1px solid rgba(255, 255, 255, 0.05);
-        padding: 24px 0px 24px 0px;
-        display: flex;
-        flex-direction: row;
-        justify-content: center;
-        width: 256px;
-      }
-      .code-base {
-        color: #ffffff;
-        font-family: "Inter-Light", sans-serif;
-        font-size: 16px;
-        font-weight: 300;
-      }
-      .code {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-        align-items: center;
-      }
-      .navbar {
-        background: rgba(255, 255, 255, 0.05);
-        border-radius: 20px;
-        padding: 26px 0px;
-        display: flex;
-        flex-direction: row;
-        gap: 72px;
-        justify-content: center;
-        width: 256px;
-      }
-      .user-photo {
-        width: 8vh;
-        height: 8vh;
-        border-radius: 50%;
-        object-fit: cover;
-      }
-      @media (max-width: 768px) {
-        .main-container {
-          gap: 25vh;
-        }
-        .user-name {
-          font-size: 2.2vh;
-        }
-        .registration-date {
-          font-size: 1.7vh;
-        }
-        .user-container {
-          gap: 1vh;
-          margin-top: 8vh;
-        }
-        .text-code {
-          font-size: 2.2vh;
-        }
-        .code-container {
-          border-radius: 3vh;
-          padding: 3.5vh 0vh;
-          width: 35vh;
-        }
-        .code-base {
-          font-size: 2vh;
-        }
-        .code {
-          gap: 1.3vh;
-        }
-        .navbar {
-          border-radius: 3vh;
-          padding: 2vh 0vh;
-          gap: 9vh;
-          width: 35.2vh;
-        }
-        .nav-icon {
-          width: 3.5vh;
-          height: 5vh;
-        }
-        .user-photo {
-          width: 8vh;
-          height: 8vh;
-          border-radius: 50%;
-          object-fit: cover;
-        }
-      }
-      @media (max-width: 480px) {
-        .main-container {
-          gap: 25vh;
-        }
-        .user-name {
-          font-size: 2.2vh;
-        }
-        .registration-date {
-          font-size: 1.7vh;
-        }
-        .user-container {
-          gap: 1vh;
-          margin-top: 8vh;
-        }
-        .text-code {
-          font-size: 2.2vh;
-        }
-        .code-container {
-          border-radius: 3vh;
-          padding: 3.5vh 0vh;
-          width: 35vh;
-        }
-        .code-base {
-          font-size: 2vh;
-        }
-        .code {
-          gap: 1.3vh;
-        }
-        .navbar {
-          border-radius: 3vh;
-          padding: 2vh 0vh;
-          gap: 9vh;
-          width: 35.2vh;
-        }
-        .nav-icon {
-          width: 3.5vh;
-          height: 5vh;
-        }
-        .user-photo {
-          width: 8vh;
-          height: 8vh;
-          border-radius: 50%;
-          object-fit: cover;
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <div class="main-container">
-      <div class="user-container">
-        <div class="user-image">
-          <img
-            class="user-photo"
-            id="user-photo"
-            src="./img/avatar.png"
-            alt="Avatar"
-          />
-        </div>
-        <div class="user-name" id="user-name">Имя Фамилия</div>
-        <div class="registration-date" id="reg-date">
-          Дата регистрации: 21 июня 2024
-        </div>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Profile Card</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <link rel="stylesheet" href="./css/main.css">
+  <link rel="stylesheet" href="./css/events.css">
+  <style>
+  </style>
+</head>
+
+<body>
+  <div id="content" class="main-container">
+    <div class="user-container">
+      <div class="user-image">
+        <img class="user-photo" id="user-photo" src="./img/avatar.png" alt="Avatar" />
       </div>
-      <div class="code">
-        <div class="text-code">Мой код:</div>
-        <div class="code-container">
-          <div class="code-base">XXXX-XXXX</div>
-        </div>
-      </div>
-      <div class="navbar">
-        <div class="nav-item">
-          <img class="nav-icon" src="./img/icons/user.svg" />
-        </div>
-        <div class="nav-item">
-          <img class="nav-icon" src="./img/icons/apps.svg" />
-        </div>
-        <div class="nav-item">
-          <img class="nav-icon" src="./img/icons/wallet.svg" />
-        </div>
+      <div class="user-name" id="user-name">Имя Фамилия</div>
+      <div class="registration-date" id="reg-date">
+        Дата регистрации: 21 июня 2024
       </div>
     </div>
-    <script>
-      // Функция для форматирования даты в "День месяц год" на русском
-      function formatDate(date) {
-        const months = [
-          "января",
-          "февраля",
-          "марта",
-          "апреля",
-          "мая",
-          "июня",
-          "июля",
-          "августа",
-          "сентября",
-          "октября",
-          "ноября",
-          "декабря",
-        ];
-        return `${date.getDate()} ${
-          months[date.getMonth()]
-        } ${date.getFullYear()}`;
-      }
+    <div class="code">
+      <div class="text-code">Мой код:</div>
+      <div class="code-container">
+        <div class="code-base">XXXX-XXXX</div>
+      </div>
+    </div>
+    <div class="navbar">
+      <div class="nav-item">
+        <img class="nav-icon" src="./img/icons/user.svg" />
+      </div>
+      <div class="nav-item">
+        <img class="nav-icon" src="./img/icons/apps.svg" />
+      </div>
+      <div class="nav-item">
+        <img class="nav-icon" src="./img/icons/wallet.svg" />
+      </div>
+    </div>
+  </div>
+  <div class="event-container ">
+    <div class="event-item">
+      <img src="./img/Rectangle.png" alt="" class="event-image">
+      <div class="event-info">
+        <div class="event-name-container">
+          <span class="event-name">Название</span>
+          <span class="event-price">1000$</span>
+        </div>
+        <div class="event-date-container">
+          <span class="event-date">Дата проведения: 21 июня 2024</span>
+          <div class="event-adress-container">
+            <span class="event-adress">Адрес: <span class="event-adress-link">улица Пушкина дом
+                Колотушкина</span></span>
+            <img src="./img/icons/copy.svg" alt="" class="copy-icon">
+          </div>
+        </div>
+      </div>
+      <div class="buy-button">Купить билет</div>
+    </div>
+    <div class="event-item">
+      <img src="./img/Rectangle.png" alt="" class="event-image">
+      <div class="event-info">
+        <div class="event-name-container">
+          <span class="event-name">Название</span>
+          <span class="event-price">1000$</span>
+        </div>
+        <div class="event-date-container">
+          <span class="event-date">Дата проведения: 21 июня 2024</span>
+          <div class="event-adress-container">
+            <span class="event-adress">Адрес: <span class="event-adress-link">улица Пушкина дом
+                Колотушкина</span></span>
+            <img src="./img/icons/copy.svg" alt="" class="copy-icon">
+          </div>
+        </div>
+      </div>
+      <div class="buy-button">Купить билет</div>
+    </div>
 
-      // Получаем элементы для замены
-      const userNameEl = document.getElementById("user-name");
-      const userPhotoEl = document.getElementById("user-photo");
-      const regDateEl = document.getElementById("reg-date");
+    <script src="./js/user_Info.js"></script>
+    <script src="./js/open_Window.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="./js/firebase.js"></script>
 
-      // Работа с датой регистрации
-      const savedDate = localStorage.getItem("firstVisitDate");
-      if (!savedDate) {
-        // Если даты нет — сохраняем текущую
-        const now = new Date();
-        localStorage.setItem("firstVisitDate", now.toISOString());
-        regDateEl.textContent = "Дата регистрации: " + formatDate(now);
-      } else {
-        // Если есть — показываем сохранённую
-        regDateEl.textContent =
-          "Дата регистрации: " + formatDate(new Date(savedDate));
-      }
+</body>
 
-      // Попытка получить данные из Telegram WebApp
-      try {
-        // Подключаем Telegram WebApp
-        const tg = window.Telegram.WebApp;
-
-        // Проверяем, есть ли user (данные пользователя)
-        if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
-          const user = tg.initDataUnsafe.user;
-
-          // Формируем имя
-          let fullName = user.first_name || "";
-          if (user.last_name) {
-            fullName += " " + user.last_name;
-          }
-
-          if (fullName.trim() !== "") {
-            userNameEl.textContent = fullName;
-          }
-
-          // Заменяем аватар, если есть
-          // В Telegram WebApp API нет прямого URL аватарки,
-          // но иногда можно получить photo_url, если бот это поддерживает.
-          // Если нет, оставляем дефолтный аватар.
-          if (user.photo_url) {
-            userPhotoEl.src = user.photo_url;
-          }
-        }
-      } catch (e) {
-        // Если ошибка — ничего не делаем, оставляем как есть
-        console.warn("Не удалось получить данные из Telegram:", e);
-      }
-    </script>
-  </body>
 </html>
