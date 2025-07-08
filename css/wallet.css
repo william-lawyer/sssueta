@@ -138,52 +138,38 @@ input {
   opacity: 1;
 }
 
-/* wrapper и сам input */
 .input-wrapper {
-  position: relative;
   display: flex;
   align-items: center;
+  position: relative;
   width: 100%;
+  font-family: "Inter-SemiBold", sans-serif;
   max-width: 29vh;
 }
 
-/* Шрифт минимум 16px, чтобы мобильники не зумили */
 .ruble-flex-input {
-  font-family: "Inter-SemiBold", sans-serif !important;
-  /* минимум 16px, максимум 2.8vh */
-  font-size: max(16px, 2.8vh) !important;
-  color: #ffffff !important;
-  background: transparent !important;
-  border: none !important;
-  outline: none !important;
+  font-family: "Inter-SemiBold", sans-serif;
+  font-size: 2.8vh;
+  color: #ffffff;
+  background: transparent;
+  border: none;
+  outline: none;
   width: 100%;
-  padding-right: 2.5vh;
-  caret-color: #ffffff !important;
+  caret-color: #ffffff;
+  padding-right: 3vh;
 }
 
-/* серый плейсхолдер «0» */
 .ruble-flex-input::placeholder {
-  color: rgba(255, 255, 255, 0.4) !important;
+  color: rgba(255, 255, 255, 0.4);
 }
 
-/* знак ₽ */
 .ruble-symbol {
-  font-family: "Inter-SemiBold", sans-serif !important;
-  font-size: clamp(16px, 2.8vh, 20px) !important;
-  color: #ffffff !important;
+  font-family: "Inter-SemiBold", sans-serif;
   position: absolute;
   right: 0;
-  user-select: none;
+  font-size: 2.8vh;
+  color: #ffffff;
   pointer-events: none;
+  user-select: none;
   display: none;
-}
-
-@media (max-width: 768px) {
-  .ruble-flex-input {
-    font-size: max(16px, 2.8vh);
-  }
-}
-
-.ruble-flex-input {
-  -webkit-text-size-adjust: 100%;
 }

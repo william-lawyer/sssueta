@@ -1,51 +1,44 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const vi = document.getElementById("visualInput");
-  const gi = document.getElementById("giveInput");
-  const vr = document.getElementById("visualRuble");
-  const gr = document.getElementById("giveRuble");
-  const ri = document.getElementById("realInput");
+  const visualInput = document.getElementById("visualInput");
+  const giveInput = document.getElementById("giveInput");
+  const visualRuble = document.getElementById("visualRuble");
+  const giveRuble = document.getElementById("giveRuble");
+  const realInput = document.getElementById("realInput");
 
-  const fmt = (str) => str.replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+  function formatNumberWithSpaces(value) {
+    return value.replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+  }
 
-  function sync(src, dst, srcR, dstR) {
-    // оставляем только цифры
-    const digits = src.value.replace(/[^\d]/g, "");
-    if (digits) {
-      const f = fmt(digits);
-      src.value = f;
-      dst.value = f;
-      srcR.style.display = dstR.style.display = "inline";
-      ri.value = digits;
+  function handleInputChange(fromInput, toInput, fromRuble, toRuble) {
+    let raw = fromInput.value.replace(/[^\d]/g, "");
+
+    if (raw.length > 0) {
+      const formatted = formatNumberWithSpaces(raw);
+      fromInput.value = formatted;
+      toInput.value = formatted;
+      fromRuble.style.display = "inline";
+      toRuble.style.display = "inline";
+      realInput.value = raw;
     } else {
-      src.value = dst.value = "";
-      srcR.style.display = dstR.style.display = "none";
-      ri.value = "";
+      fromInput.value = "";
+      toInput.value = "";
+      fromRuble.style.display = "none";
+      toRuble.style.display = "none";
+      realInput.value = "";
     }
   }
 
-  vi.addEventListener("input", () => sync(vi, gi, vr, gr));
-  gi.addEventListener("input", () => sync(gi, vi, gr, vr));
+  visualInput.addEventListener("input", () => {
+    handleInputChange(visualInput, giveInput, visualRuble, giveRuble);
+  });
 
-  document.addEventListener(
-    "focus",
-    function () {
-      document
-        .querySelector('meta[name="viewport"]')
-        .setAttribute(
-          "content",
-          "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
-        );
-    },
-    true
-  );
+  giveInput.addEventListener("input", () => {
+    handleInputChange(giveInput, visualInput, giveRuble, visualRuble);
+  });
 
-  // Блокируем не‑цифры
-  [vi, gi].forEach((el) => {
-    el.addEventListener("keypress", (e) => {
-      if (
-        !/\d/.test(e.key) &&
-        !["Backspace", "ArrowLeft", "ArrowRight"].includes(e.key)
-      ) {
+  [visualInput, giveInput].forEach((input) => {
+    input.addEventListener("keypress", (e) => {
+      if (!/\d/.test(e.key)) {
         e.preventDefault();
       }
     });
