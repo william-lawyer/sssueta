@@ -8,7 +8,189 @@
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <link rel="stylesheet" href="./css/main.css">
   <link rel="stylesheet" href="./css/events.css">
+  <link rel="stylesheet" href="./css/notification.css">
   <style>
+    .wallet-container {
+      position: fixed;
+      bottom: -100%;
+      left: 0;
+      width: 100%;
+      height: 85vh;
+      background: #151516;
+      border-radius: 40px 40px 0px 0px;
+      transition: bottom 0.3s ease;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 4vh;
+    }
+
+    .card-image {
+      width: 45vh;
+      height: 40vh;
+    }
+
+    .wallet-container.active {
+      bottom: 0;
+    }
+
+    .balance {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: -10vh;
+      gap: 0.5vh;
+    }
+
+    .balance-text {
+      font-family: "Inter-SemiBold", sans-serif;
+      font-size: 1.7vh;
+      color: #ffffff;
+      opacity: 0.7;
+    }
+
+    .balance-value {
+      font-family: "Inter-SemiBold", sans-serif;
+      font-size: 3.5vh;
+      color: #ffffff;
+    }
+
+    .calculator-container {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 3vh;
+      border-style: solid;
+      border-color: rgba(255, 255, 255, 0.1);
+      border-width: 1px;
+      width: 35vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+    }
+
+    .spend-container {
+      display: flex;
+      flex-direction: column;
+      margin-top: 2.5vh;
+      margin-left: 2.5vh;
+      margin-bottom: 1.5vh;
+      gap: 1.5vh;
+    }
+
+    .give-container {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5vh;
+      margin-top: 0.5vh;
+      margin-left: 2.5vh;
+      margin-bottom: 2.5vh;
+    }
+
+    .spend-text {
+      font-family: "Inter-SemiBold", sans-serif;
+      font-size: 1.8vh;
+      color: #ffffff;
+      opacity: 0.7;
+    }
+
+    input {
+      all: unset;
+    }
+
+    .spend-input {
+      font-family: "Inter-SemiBold", sans-serif;
+      font-size: 2.8vh;
+      background: transparent;
+      color: #ffffff;
+      width: 29vh;
+      height: 3vh;
+    }
+
+    .give-text {
+      font-family: "Inter-SemiBold", sans-serif;
+      font-size: 1.8vh;
+      color: #ffffff;
+      opacity: 0.7;
+    }
+
+    .give-input {
+      font-family: "Inter-SemiBold", sans-serif;
+      font-size: 2.8vh;
+      background: transparent;
+      color: #ffffff;
+      width: 29vh;
+      height: 3vh;
+    }
+
+    .line {
+      box-sizing: border-box;
+      border-style: solid;
+      border-color: rgba(255, 255, 255, 0.1);
+      border-width: 1px 0 0 0;
+      align-self: center;
+      width: 30vh;
+    }
+
+    .balance-button {
+      color: #ffffff;
+      background-color: #5541d9;
+      border-radius: 2vh;
+      padding: 2.5vh 10vh;
+      font-family: "Inter-SemiBold", sans-serif;
+      font-size: 1.7vh;
+    }
+
+    .swap-icon {
+      width: 3vh;
+      height: 3vh;
+      align-self: center;
+      margin-top: -1.8vh;
+      opacity: 1;
+    }
+
+    .ruble-icon {
+      gap: 0.5vh;
+      font-family: "Inter-SemiBold", sans-serif;
+      font-size: 2.8vh;
+      color: #ffffff;
+    }
+
+    .ruble-input-wrapper {
+      position: relative;
+      background: transparent;
+      border: none;
+      display: inline-flex;
+      align-items: center;
+      font-family: "Inter-SemiBold", sans-serif;
+      font-size: 2.8vh;
+      color: #ffffff;
+      width: fit-content;
+      padding: 0.5vh;
+      min-width: 10vh;
+    }
+
+    .ruble-value {
+      pointer-events: none;
+      white-space: nowrap;
+    }
+
+    .ruble-icon {
+      margin-left: 0.5vh;
+      font-size: 2.8vh;
+      color: #ffffff;
+    }
+
+    .spend-input-hidden {
+      position: absolute;
+      top: 0;
+      left: 0;
+      opacity: 0;
+      pointer-events: auto;
+      width: 100%;
+      height: 100%;
+      font-size: 2.8vh;
+    }
   </style>
 </head>
 
@@ -47,7 +229,7 @@
       <div class="event-info">
         <div class="event-name-container">
           <span class="event-name">Название</span>
-          <span class="event-price">1000$</span>
+          <span class="event-price">1000 ₽</span>
         </div>
         <div class="event-date-container">
           <span class="event-date">Дата проведения: 21 июня 2024</span>
@@ -65,7 +247,7 @@
       <div class="event-info">
         <div class="event-name-container">
           <span class="event-name">Название</span>
-          <span class="event-price">1000$</span>
+          <span class="event-price">1000 ₽</span>
         </div>
         <div class="event-date-container">
           <span class="event-date">Дата проведения: 21 июня 2024</span>
@@ -78,12 +260,67 @@
       </div>
       <div class="buy-button">Купить билет</div>
     </div>
+  </div>
+  <div class="wallet-container active">
+    <img src="./img/card.png" alt="" class="card-image">
+    <div class="balance">
+      <div class="balance-text">Баланс:</div>
+      <div class="balance-value">1000 ₽</div>
+    </div>
+    <div class="calculator-container">
+      <div class="spend-container">
+        <span class="spend-text">Заплачу</span>
+        <div class="ruble-input-wrapper">
+          <span class="ruble-value" id="rubleValue">0</span><span class="ruble-icon">₽</span>
+          <input type="number" name="" class="spend-input-hidden" id="realInput">
+        </div>
+      </div>
+      <div class="line"></div>
+      <img src="./img/icons/swap.svg" class="swap-icon" alt="">
+      <div class="give-container">
+        <span class="give-text">Получу</span>
+        <input type="number" name="" class="give-input" id="">
+      </div>
+    </div>
+    <div class="balance-button">Пополнить баланс</div>
+  </div>
+  <div id="copy-notification" style="display: none;" class="copy-notification">
+    Адрес скопирован!
+  </div>
 
-    <script src="./js/user_Info.js"></script>
-    <script src="./js/open_Window.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-    <script src="./js/firebase.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const spendInput = document.querySelector(".spend-input");
+      const giveInput = document.querySelector(".give-input");
+
+      spendInput.addEventListener("input", () => {
+        giveInput.value = spendInput.value;
+      });
+    });
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const realInput = document.getElementById("realInput");
+      const rubleValue = document.getElementById("rubleValue");
+
+      realInput.addEventListener("input", () => {
+        rubleValue.textContent = realInput.value || '0';
+      });
+
+      // Автофокус и ввод с клавиатуры
+      rubleValue.parentElement.addEventListener("click", () => {
+        realInput.focus();
+      });
+    });
+  </script>
+
+
+  <script src="./js/user_Info.js"></script>
+  <script src="./js/open_Events.js"></script>
+  <script src="./js/open_Wallet.js"></script>
+  <script src="./js/copy.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="./js/firebase.js"></script>
 
 </body>
 

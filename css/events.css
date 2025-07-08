@@ -57,6 +57,7 @@
   flex-direction: column;
   gap: 1.5vh;
   font-size: 1.75vh;
+  padding-left: 0.3vh;
 }
 
 .event-date,

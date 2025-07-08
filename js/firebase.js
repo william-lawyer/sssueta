@@ -37,7 +37,7 @@ async function loadEvents() {
                 <div class="event-info">
                   <div class="event-name-container">
                     <span class="event-name">${event.name}</span>
-                    <span class="event-price">${event.price}$</span>
+                    <span class="event-price">${event.price} ₽</span>
                   </div>
                   <div class="event-date-container">
                     <span class="event-date">Дата проведения: ${
