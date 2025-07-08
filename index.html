@@ -25,6 +25,7 @@
       align-items: center;
       justify-content: flex-start;
       gap: 4vh;
+      overflow: unset;
     }
 
     .card-image {
@@ -149,47 +150,34 @@
       opacity: 1;
     }
 
-    .ruble-icon {
-      gap: 0.5vh;
-      font-family: "Inter-SemiBold", sans-serif;
-      font-size: 2.8vh;
-      color: #ffffff;
-    }
-
-    .ruble-input-wrapper {
-      position: relative;
-      background: transparent;
-      border: none;
-      display: inline-flex;
+    .ruble-flex-input {
       align-items: center;
       font-family: "Inter-SemiBold", sans-serif;
       font-size: 2.8vh;
       color: #ffffff;
-      width: fit-content;
-      padding: 0.5vh;
-      min-width: 10vh;
+      background: transparent;
+      outline: none;
+      min-width: 5vh;
+      max-width: 29vh;
+      caret-color: #ffffff;
     }
 
-    .ruble-value {
+    .ruble-flex-input:empty::before {
+      content: attr(data-placeholder);
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    .ruble-symbol {
+      margin-left: 1vh;
       pointer-events: none;
-      white-space: nowrap;
+      user-select: none;
     }
 
-    .ruble-icon {
-      margin-left: 0.5vh;
-      font-size: 2.8vh;
-      color: #ffffff;
-    }
 
-    .spend-input-hidden {
+    .hidden-input {
       position: absolute;
-      top: 0;
-      left: 0;
       opacity: 0;
-      pointer-events: auto;
-      width: 100%;
-      height: 100%;
-      font-size: 2.8vh;
+      pointer-events: none;
     }
   </style>
 </head>
@@ -270,16 +258,14 @@
     <div class="calculator-container">
       <div class="spend-container">
         <span class="spend-text">Заплачу</span>
-        <div class="ruble-input-wrapper">
-          <span class="ruble-value" id="rubleValue">0</span><span class="ruble-icon">₽</span>
-          <input type="number" name="" class="spend-input-hidden" id="realInput">
-        </div>
+        <div class="ruble-flex-input" contenteditable="true" id="visualInput"></div>
+        <input type="text" id="realInput" class="hidden-input" />
       </div>
       <div class="line"></div>
       <img src="./img/icons/swap.svg" class="swap-icon" alt="">
       <div class="give-container">
         <span class="give-text">Получу</span>
-        <input type="number" name="" class="give-input" id="">
+        <div class="ruble-flex-input" contenteditable="true" id="giveInput" data-placeholder="0"></div>
       </div>
     </div>
     <div class="balance-button">Пополнить баланс</div>
@@ -290,28 +276,86 @@
 
   <script>
     document.addEventListener("DOMContentLoaded", () => {
-      const spendInput = document.querySelector(".spend-input");
-      const giveInput = document.querySelector(".give-input");
-
-      spendInput.addEventListener("input", () => {
-        giveInput.value = spendInput.value;
-      });
-    });
-
-    document.addEventListener("DOMContentLoaded", () => {
+      const visualInput = document.getElementById("visualInput");
+      const giveInput = document.getElementById("giveInput");
       const realInput = document.getElementById("realInput");
-      const rubleValue = document.getElementById("rubleValue");
 
-      realInput.addEventListener("input", () => {
-        rubleValue.textContent = realInput.value || '0';
+      const rubleHTML = '<span class="ruble-symbol">₽</span>';
+
+      visualInput.setAttribute("data-placeholder", "0");
+      giveInput.setAttribute("data-placeholder", "0");
+
+      function formatNumberWithSpaces(value) {
+        return value.replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+      }
+
+      function placeCaretBeforeRuble(el) {
+        const range = document.createRange();
+        const sel = window.getSelection();
+        const textNode = el.firstChild;
+        if (textNode) {
+          range.setStart(textNode, textNode.length);
+          range.collapse(true);
+          sel.removeAllRanges();
+          sel.addRange(range);
+        }
+      }
+
+      function updateInputs(fromInput, toInput, value) {
+        const digits = value.replace(/[^\d]/g, "");
+        if (digits.length > 0) {
+          const formatted = formatNumberWithSpaces(digits);
+          fromInput.innerHTML = formatted + rubleHTML;
+          toInput.innerHTML = formatted + rubleHTML;
+          realInput.value = digits;
+          placeCaretBeforeRuble(fromInput);
+          placeCaretBeforeRuble(toInput);
+        } else {
+          fromInput.innerHTML = "";
+          toInput.innerHTML = "";
+          realInput.value = "";
+        }
+      }
+
+      visualInput.addEventListener("input", () => {
+        updateInputs(visualInput, giveInput, visualInput.textContent);
       });
 
-      // Автофокус и ввод с клавиатуры
-      rubleValue.parentElement.addEventListener("click", () => {
-        realInput.focus();
+      giveInput.addEventListener("input", () => {
+        updateInputs(giveInput, visualInput, giveInput.textContent);
       });
+
+      // Защита от удаления ₽
+      function handleBackspace(e, el) {
+        const lastChild = el.lastChild;
+        if (
+          e.key === "Backspace" &&
+          lastChild &&
+          lastChild.className === "ruble-symbol" &&
+          window.getSelection().anchorOffset === el.textContent.length
+        ) {
+          e.preventDefault();
+          const digits = el.textContent.slice(0, -1).replace(/[^\d]/g, "");
+          if (digits.length > 0) {
+            const formatted = formatNumberWithSpaces(digits);
+            el.innerHTML = formatted + rubleHTML;
+            realInput.value = digits;
+            placeCaretBeforeRuble(el);
+          } else {
+            el.innerHTML = "";
+            realInput.value = "";
+          }
+        }
+      }
+
+      visualInput.addEventListener("keydown", (e) => handleBackspace(e, visualInput));
+      giveInput.addEventListener("keydown", (e) => handleBackspace(e, giveInput));
     });
   </script>
+
+
+
+
 
 
   <script src="./js/user_Info.js"></script>
