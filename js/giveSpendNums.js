@@ -1,50 +1,44 @@
 document.addEventListener("DOMContentLoaded", () => {
   const visualInput = document.getElementById("visualInput");
   const giveInput = document.getElementById("giveInput");
-  const visualRuble = document.getElementById("visualRuble");
-  const giveRuble = document.getElementById("giveRuble");
+  const visualR = document.getElementById("visualRuble");
+  const giveR = document.getElementById("giveRuble");
   const realInput = document.getElementById("realInput");
 
-  let isSyncing = false;
-
-  function formatNumberWithSpaces(value) {
-    return value.replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+  function formatNumberWithSpaces(str) {
+    return str.replace(/\B(?=(\d{3})+(?!\d))/g, " ");
   }
 
-  function handleInputChange(source, target, sourceRuble, targetRuble) {
-    if (isSyncing) return;
-    isSyncing = true;
-
-    let raw = source.value.replace(/[^\d]/g, "");
-    const formatted = raw.length > 0 ? formatNumberWithSpaces(raw) : "";
-
-    source.value = formatted;
-    target.value = formatted;
-
-    if (raw.length > 0) {
-      sourceRuble.style.display = "inline";
-      targetRuble.style.display = "inline";
-      realInput.value = raw;
+  function syncFields(src, dst, srcR, dstR) {
+    // Оставляем только цифры
+    const digits = src.value.replace(/[^\d]/g, "");
+    if (digits) {
+      const formatted = formatNumberWithSpaces(digits);
+      src.value = formatted;
+      dst.value = formatted;
+      realInput.value = digits;
     } else {
-      sourceRuble.style.display = "none";
-      targetRuble.style.display = "none";
+      src.value = "";
+      dst.value = "";
       realInput.value = "";
     }
-
-    isSyncing = false;
   }
 
-  visualInput.addEventListener("input", () =>
-    handleInputChange(visualInput, giveInput, visualRuble, giveRuble)
-  );
+  // На ввод в любое поле — синхронизируем оба
+  visualInput.addEventListener("input", () => {
+    syncFields(visualInput, giveInput, visualR, giveR);
+  });
+  giveInput.addEventListener("input", () => {
+    syncFields(giveInput, visualInput, giveR, visualR);
+  });
 
-  giveInput.addEventListener("input", () =>
-    handleInputChange(giveInput, visualInput, giveRuble, visualRuble)
-  );
-
+  // Блокируем не-цифры (кроме функциональных клавиш)
   [visualInput, giveInput].forEach((input) => {
     input.addEventListener("keypress", (e) => {
-      if (!/\d/.test(e.key)) {
+      if (
+        !/\d/.test(e.key) &&
+        !["Backspace", "ArrowLeft", "ArrowRight"].includes(e.key)
+      ) {
         e.preventDefault();
       }
     });

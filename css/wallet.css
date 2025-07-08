@@ -172,3 +172,46 @@ input {
   user-select: none;
   display: none;
 }
+
+/* контейнер + базовый input */
+.calculator-container .input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: 29vh;
+}
+
+.calculator-container .ruble-flex-input {
+  font-family: "Inter-SemiBold", sans-serif !important;
+  font-size: 2.8vh !important;
+  color: #ffffff !important;
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  width: 100%;
+  padding-right: 2.5vh;
+  caret-color: #ffffff !important;
+}
+
+/* серый плейсхолдер «0» */
+.calculator-container .ruble-flex-input::placeholder {
+  color: rgba(255, 255, 255, 0.4) !important;
+}
+
+/* знак рубля, по умолчанию скрыт */
+.calculator-container .ruble-symbol {
+  font-family: "Inter-SemiBold", sans-serif !important;
+  font-size: 2.8vh !important;
+  color: #ffffff !important;
+  position: absolute;
+  right: 0;
+  user-select: none;
+  pointer-events: none;
+  display: none;
+}
+
+/* когда введено хоть что-то — оба поля валидны (pattern="\d*") и :valid становится true */
+.calculator-container input:valid + .ruble-symbol {
+  display: inline;
+}
