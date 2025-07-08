@@ -92,21 +92,24 @@
     <div class="calculator-container">
       <div class="spend-container">
         <span class="spend-text">Заплачу</span>
-        <div class="ruble-wrapper">
-          <div contenteditable="true" id="visualInput" class="editable-part"></div>
-          <span class="ruble-symbol">₽</span>
+        <div class="input-wrapper">
+          <input type="text" id="visualInput" class="ruble-flex-input" placeholder="0" inputmode="numeric" />
+          <span class="ruble-symbol" id="visualRuble">₽</span>
         </div>
       </div>
       <div class="line"></div>
-      <img src="./img/icons/swap.svg" class="swap-icon" alt="">
+      <img src="./img/icons/swap.svg" class="swap-icon" alt="" />
       <div class="give-container">
         <span class="give-text">Получу</span>
-        <div class="ruble-wrapper">
-          <div contenteditable="true" id="visualInput" class="editable-part"></div>
-          <span class="ruble-symbol">₽</span>
+        <div class="input-wrapper">
+          <input type="text" id="giveInput" class="ruble-flex-input" placeholder="0" inputmode="numeric" />
+          <span class="ruble-symbol" id="giveRuble">С</span>
         </div>
       </div>
     </div>
+
+    <input type="hidden" id="realInput" />
+
     <div class="balance-button">Пополнить баланс</div>
   </div>
   <div id="copy-notification" style="display: none;" class="copy-notification">

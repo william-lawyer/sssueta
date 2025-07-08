@@ -1,86 +1,46 @@
 document.addEventListener("DOMContentLoaded", () => {
   const visualInput = document.getElementById("visualInput");
   const giveInput = document.getElementById("giveInput");
+  const visualRuble = document.getElementById("visualRuble");
+  const giveRuble = document.getElementById("giveRuble");
   const realInput = document.getElementById("realInput");
-
-  const rubleHTML = '<span class="ruble-symbol">₽</span>';
-
-  visualInput.setAttribute("data-placeholder", "0");
-  giveInput.setAttribute("data-placeholder", "0");
 
   function formatNumberWithSpaces(value) {
     return value.replace(/\B(?=(\d{3})+(?!\d))/g, " ");
   }
 
-  function placeCaretBeforeRuble(el) {
-    const range = document.createRange();
-    const sel = window.getSelection();
-    const textNode = el.firstChild;
-    if (textNode) {
-      range.setStart(textNode, textNode.length);
-      range.collapse(true);
-      sel.removeAllRanges();
-      sel.addRange(range);
-    }
-  }
+  function handleInputChange(fromInput, toInput, fromRuble, toRuble) {
+    let raw = fromInput.value.replace(/[^\d]/g, "");
 
-  function updateInputs(fromInput, toInput, value) {
-    const digits = value.replace(/[^\d]/g, "");
-    if (digits.length > 0) {
-      const formatted = formatNumberWithSpaces(digits);
-      fromInput.innerHTML = formatted + rubleHTML;
-      toInput.innerHTML = formatted + rubleHTML;
-      realInput.value = digits;
-      placeCaretBeforeRuble(fromInput);
-      placeCaretBeforeRuble(toInput);
+    if (raw.length > 0) {
+      const formatted = formatNumberWithSpaces(raw);
+      fromInput.value = formatted;
+      toInput.value = formatted;
+      fromRuble.style.display = "inline";
+      toRuble.style.display = "inline";
+      realInput.value = raw;
     } else {
-      fromInput.innerHTML = "";
-      toInput.innerHTML = "";
+      fromInput.value = "";
+      toInput.value = "";
+      fromRuble.style.display = "none";
+      toRuble.style.display = "none";
       realInput.value = "";
     }
   }
 
-  document.addEventListener("focusin", () => {
-    document.body.style.transform = "scale(1)";
-    document.body.style.transformOrigin = "0 0";
-  });
-  document.addEventListener("focusout", () => {
-    document.body.style.transform = "";
-  });
-
   visualInput.addEventListener("input", () => {
-    updateInputs(visualInput, giveInput, visualInput.textContent);
+    handleInputChange(visualInput, giveInput, visualRuble, giveRuble);
   });
 
   giveInput.addEventListener("input", () => {
-    updateInputs(giveInput, visualInput, giveInput.textContent);
+    handleInputChange(giveInput, visualInput, giveRuble, visualRuble);
   });
 
-  // Защита от удаления ₽
-  function handleBackspace(e, el) {
-    const lastChild = el.lastChild;
-    if (
-      e.key === "Backspace" &&
-      lastChild &&
-      lastChild.className === "ruble-symbol" &&
-      window.getSelection().anchorOffset === el.textContent.length
-    ) {
-      e.preventDefault();
-      const digits = el.textContent.slice(0, -1).replace(/[^\d]/g, "");
-      if (digits.length > 0) {
-        const formatted = formatNumberWithSpaces(digits);
-        el.innerHTML = formatted + rubleHTML;
-        realInput.value = digits;
-        placeCaretBeforeRuble(el);
-      } else {
-        el.innerHTML = "";
-        realInput.value = "";
+  [visualInput, giveInput].forEach((input) => {
+    input.addEventListener("keypress", (e) => {
+      if (!/\d/.test(e.key)) {
+        e.preventDefault();
       }
-    }
-  }
-
-  visualInput.addEventListener("keydown", (e) =>
-    handleBackspace(e, visualInput)
-  );
-  giveInput.addEventListener("keydown", (e) => handleBackspace(e, giveInput));
+    });
+  });
 });

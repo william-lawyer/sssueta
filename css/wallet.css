@@ -138,40 +138,38 @@ input {
   opacity: 1;
 }
 
-.ruble-flex-input {
+.input-wrapper {
+  display: flex;
   align-items: center;
+  position: relative;
+  width: 100%;
+  font-family: "Inter-SemiBold", sans-serif;
+  max-width: 29vh;
+}
+
+.ruble-flex-input {
   font-family: "Inter-SemiBold", sans-serif;
   font-size: 2.8vh;
   color: #ffffff;
   background: transparent;
+  border: none;
   outline: none;
-  min-width: 5vh;
-  max-width: 29vh;
+  width: 100%;
   caret-color: #ffffff;
+  padding-right: 3vh;
 }
 
-.ruble-flex-input:empty::before {
-  content: attr(data-placeholder);
+.ruble-flex-input::placeholder {
   color: rgba(255, 255, 255, 0.4);
 }
 
 .ruble-symbol {
-  margin-left: 1vh;
+  font-family: "Inter-SemiBold", sans-serif;
+  position: absolute;
+  right: 0;
+  font-size: 2.8vh;
+  color: #ffffff;
   pointer-events: none;
   user-select: none;
-}
-
-.hidden-input {
-  position: absolute;
-  opacity: 0;
-  pointer-events: none;
-}
-
-.ruble-wrapper {
-  display: flex;
-  align-items: center;
-}
-.editable-part {
-  outline: none;
-  min-width: 5vh;
+  display: none;
 }
