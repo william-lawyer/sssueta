@@ -3,11 +3,7 @@
 
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="viewport" content="width=device-width,
-                 initial-scale=1.0,
-                 maximum-scale=1.0,
-                 user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Profile Card</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <link rel="stylesheet" href="./css/main.css">
@@ -15,7 +11,9 @@
   <link rel="stylesheet" href="./css/notification.css">
   <link rel="stylesheet" href="./css/wallet.css">
   <style>
-
+    html {
+      -webkit-text-size-adjust: none;
+    }
   </style>
 </head>
 
@@ -96,8 +94,7 @@
       <div class="spend-container">
         <span class="spend-text">Заплачу</span>
         <div class="input-wrapper">
-          <input type="tel" id="visualInput" class="ruble-flex-input" placeholder="0" inputmode="numeric"
-            autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+          <input type="text" id="visualInput" class="ruble-flex-input" placeholder="0" inputmode="numeric" />
           <span class="ruble-symbol" id="visualRuble">₽</span>
         </div>
       </div>
@@ -106,8 +103,7 @@
       <div class="give-container">
         <span class="give-text">Получу</span>
         <div class="input-wrapper">
-          <input type="tel" id="giveInput" class="ruble-flex-input" placeholder="0" inputmode="numeric"
-            autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+          <input type="text" id="giveInput" class="ruble-flex-input" placeholder="0" inputmode="numeric" />
           <span class="ruble-symbol" id="giveRuble">₽</span>
         </div>
       </div>

@@ -26,6 +26,19 @@ document.addEventListener("DOMContentLoaded", () => {
   vi.addEventListener("input", () => sync(vi, gi, vr, gr));
   gi.addEventListener("input", () => sync(gi, vi, gr, vr));
 
+  document.addEventListener(
+    "focus",
+    function () {
+      document
+        .querySelector('meta[name="viewport"]')
+        .setAttribute(
+          "content",
+          "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+        );
+    },
+    true
+  );
+
   // Блокируем не‑цифры
   [vi, gi].forEach((el) => {
     el.addEventListener("keypress", (e) => {
