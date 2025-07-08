@@ -1,110 +1,198 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Profile Card</title>
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <style>
-    body {
-      background-color: #0B0B0D;
-    }
-    .main-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 128px;
-    }
-    .user-name {
-      color: white;
-      font-family: "Inter-Regular", sans-serif;
-      font-size: 16px;
-      font-weight: 400;
-    }
-    .registration-date {
-      color: #ffffff;
-      font-family: "Inter-Regular", sans-serif;
-      font-size: 12px;
-      font-weight: 300;
-      opacity: 0.7;
-    }
-    .user-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-      margin-top: 40px;
-      width: 256px;
-    }
-    .text-code {
-      color: #ffffff;
-      font-family: "Inter-Regular", sans-serif;
-      font-size: 16px;
-      font-weight: 300;
-      opacity: 0.7
-    }
-    .code-container {
-      background: rgba(255, 255, 255, 0.05);
-      border-radius: 20px;
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      padding: 24px 0px 24px 0px;
-      display: flex;
-      flex-direction: row;
-      justify-content: center;
-      width: 256px;
-    }
-    .code-base {
-      color: #ffffff;
-      font-family: "Inter-Light", sans-serif;
-      font-size: 16px;
-      font-weight: 300;
-    }
-    .code {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      align-items: center;
-    }
-    .navbar {
-      background: rgba(255, 255, 255, 0.05);
-      border-radius: 20px;
-      padding: 14px 0px;
-      display: flex;
-      flex-direction: row;
-      gap: 72px;
-      justify-content: center;
-      width: 256px;
-    }
-
-  </style>
-</head>
-<body>
-  <div class="main-container">
-    <div class="user-container">
-      <div class="user-image">
-        <img id="user-photo" src="./img/avatar.png" alt="Avatar" />
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Profile Card</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+      body {
+        background-color: #0b0b0d;
+      }
+      .main-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 128px;
+      }
+      .user-name {
+        color: white;
+        font-family: "Inter-Regular", sans-serif;
+        font-size: 16px;
+        font-weight: 400;
+      }
+      .registration-date {
+        color: #ffffff;
+        font-family: "Inter-Regular", sans-serif;
+        font-size: 12px;
+        font-weight: 300;
+        opacity: 0.7;
+      }
+      .user-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        margin-top: 40px;
+      }
+      .text-code {
+        color: #ffffff;
+        font-family: "Inter-Regular", sans-serif;
+        font-size: 16px;
+        font-weight: 300;
+        opacity: 0.7;
+      }
+      .code-container {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        padding: 24px 0px 24px 0px;
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        width: 256px;
+      }
+      .code-base {
+        color: #ffffff;
+        font-family: "Inter-Light", sans-serif;
+        font-size: 16px;
+        font-weight: 300;
+      }
+      .code {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        align-items: center;
+      }
+      .navbar {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 20px;
+        padding: 26px 0px;
+        display: flex;
+        flex-direction: row;
+        gap: 72px;
+        justify-content: center;
+        width: 256px;
+      }
+      @media (max-width: 768px) {
+        .main-container {
+          gap: 25vh;
+        }
+        .user-name {
+          font-size: 2.2vh;
+        }
+        .registration-date {
+          font-size: 1.7vh;
+        }
+        .user-container {
+          gap: 1vh;
+        }
+        .text-code {
+          font-size: 2.2vh;
+        }
+        .code-container {
+          border-radius: 3vh;
+          padding: 3.5vh 0vh;
+          width: 35vh;
+        }
+        .code-base {
+          font-size: 2vh;
+        }
+        .code {
+          gap: 1.3vh;
+        }
+        .navbar {
+          border-radius: 3vh;
+          padding: 2vh 0vh;
+          gap: 9vh;
+          width: 35.2vh;
+        }
+        .nav-icon {
+          width: 3.5vh;
+          height: 5vh;
+        }
+        .user-photo {
+          width: 8vh;
+          height: 8vh;
+        }
+      }
+      @media (max-width: 480px) {
+        .main-container {
+          gap: 25vh;
+        }
+        .user-name {
+          font-size: 2.2vh;
+        }
+        .registration-date {
+          font-size: 1.7vh;
+        }
+        .user-container {
+          gap: 1vh;
+        }
+        .text-code {
+          font-size: 2.2vh;
+        }
+        .code-container {
+          border-radius: 3vh;
+          padding: 3.5vh 0vh;
+          width: 35vh;
+        }
+        .code-base {
+          font-size: 2vh;
+        }
+        .code {
+          gap: 1.3vh;
+        }
+        .navbar {
+          border-radius: 3vh;
+          padding: 2vh 0vh;
+          gap: 9vh;
+          width: 35.2vh;
+        }
+        .nav-icon {
+          width: 3.5vh;
+          height: 5vh;
+        }
+        .user-photo {
+          width: 8vh;
+          height: 8vh;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="main-container">
+      <div class="user-container">
+        <div class="user-image">
+          <img
+            class="user-photo"
+            id="user-photo"
+            src="./img/avatar.png"
+            alt="Avatar"
+          />
+        </div>
+        <div class="user-name" id="user-name">Имя Фамилия</div>
+        <div class="registration-date" id="reg-date">
+          Дата регистрации: 21 июня 2024
+        </div>
       </div>
-      <div class="user-name" id="user-name">Имя Фамилия</div>
-      <div class="registration-date" id="reg-date">Дата регистрации: 21 июня 2024</div>
-    </div>
-    <div class="code">
-      <div class="text-code">Мой код:</div>
+      <div class="code">
+        <div class="text-code">Мой код:</div>
         <div class="code-container">
-        <div class="code-base">XXXX-XXXX</div>
+          <div class="code-base">XXXX-XXXX</div>
+        </div>
+      </div>
+      <div class="navbar">
+        <div class="nav-item">
+          <img class="nav-icon" src="./img/icons/user.svg" />
+        </div>
+        <div class="nav-item">
+          <img class="nav-icon" src="./img/icons/apps.svg" />
+        </div>
+        <div class="nav-item">
+          <img class="nav-icon" src="./img/icons/wallet.svg" />
+        </div>
       </div>
     </div>
-    <div class="navbar">
-      <div class="nav-icon">
-        <img src="./img/icons/user.svg" />
-      </div>
-      <div class="nav-icon">
-        <img src="./img/icons/apps.svg" />
-      </div>
-      <div class="nav-icon">
-        <img src="./img/icons/wallet.svg" />
-      </div>
-    </div>
-</div>
-
-</body>
+  </body>
 </html>
