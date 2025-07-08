@@ -4,181 +4,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Profile Card</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <link rel="stylesheet" href="./css/main.css">
   <link rel="stylesheet" href="./css/events.css">
   <link rel="stylesheet" href="./css/notification.css">
+  <link rel="stylesheet" href="./css/wallet.css">
   <style>
-    .wallet-container {
-      position: fixed;
-      bottom: -100%;
-      left: 0;
-      width: 100%;
-      height: 85vh;
-      background: #151516;
-      border-radius: 40px 40px 0px 0px;
-      transition: bottom 0.3s ease;
-      z-index: 1000;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      gap: 4vh;
-      overflow: unset;
-    }
 
-    .card-image {
-      width: 45vh;
-      height: 40vh;
-    }
-
-    .wallet-container.active {
-      bottom: 0;
-    }
-
-    .balance {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      margin-top: -10vh;
-      gap: 0.5vh;
-    }
-
-    .balance-text {
-      font-family: "Inter-SemiBold", sans-serif;
-      font-size: 1.7vh;
-      color: #ffffff;
-      opacity: 0.7;
-    }
-
-    .balance-value {
-      font-family: "Inter-SemiBold", sans-serif;
-      font-size: 3.5vh;
-      color: #ffffff;
-    }
-
-    .calculator-container {
-      background: rgba(255, 255, 255, 0.05);
-      border-radius: 3vh;
-      border-style: solid;
-      border-color: rgba(255, 255, 255, 0.1);
-      border-width: 1px;
-      width: 35vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-start;
-    }
-
-    .spend-container {
-      display: flex;
-      flex-direction: column;
-      margin-top: 2.5vh;
-      margin-left: 2.5vh;
-      margin-bottom: 1.5vh;
-      gap: 1.5vh;
-    }
-
-    .give-container {
-      display: flex;
-      flex-direction: column;
-      gap: 1.5vh;
-      margin-top: 0.5vh;
-      margin-left: 2.5vh;
-      margin-bottom: 2.5vh;
-    }
-
-    .spend-text {
-      font-family: "Inter-SemiBold", sans-serif;
-      font-size: 1.8vh;
-      color: #ffffff;
-      opacity: 0.7;
-    }
-
-    input {
-      all: unset;
-    }
-
-    .spend-input {
-      font-family: "Inter-SemiBold", sans-serif;
-      font-size: 2.8vh;
-      background: transparent;
-      color: #ffffff;
-      width: 29vh;
-      height: 3vh;
-    }
-
-    .give-text {
-      font-family: "Inter-SemiBold", sans-serif;
-      font-size: 1.8vh;
-      color: #ffffff;
-      opacity: 0.7;
-    }
-
-    .give-input {
-      font-family: "Inter-SemiBold", sans-serif;
-      font-size: 2.8vh;
-      background: transparent;
-      color: #ffffff;
-      width: 29vh;
-      height: 3vh;
-    }
-
-    .line {
-      box-sizing: border-box;
-      border-style: solid;
-      border-color: rgba(255, 255, 255, 0.1);
-      border-width: 1px 0 0 0;
-      align-self: center;
-      width: 30vh;
-    }
-
-    .balance-button {
-      color: #ffffff;
-      background-color: #5541d9;
-      border-radius: 2vh;
-      padding: 2.5vh 10vh;
-      font-family: "Inter-SemiBold", sans-serif;
-      font-size: 1.7vh;
-    }
-
-    .swap-icon {
-      width: 3vh;
-      height: 3vh;
-      align-self: center;
-      margin-top: -1.8vh;
-      opacity: 1;
-    }
-
-    .ruble-flex-input {
-      align-items: center;
-      font-family: "Inter-SemiBold", sans-serif;
-      font-size: 2.8vh;
-      color: #ffffff;
-      background: transparent;
-      outline: none;
-      min-width: 5vh;
-      max-width: 29vh;
-      caret-color: #ffffff;
-    }
-
-    .ruble-flex-input:empty::before {
-      content: attr(data-placeholder);
-      color: rgba(255, 255, 255, 0.4);
-    }
-
-    .ruble-symbol {
-      margin-left: 1vh;
-      pointer-events: none;
-      user-select: none;
-    }
-
-
-    .hidden-input {
-      position: absolute;
-      opacity: 0;
-      pointer-events: none;
-    }
   </style>
 </head>
 
@@ -249,7 +83,7 @@
       <div class="buy-button">Купить билет</div>
     </div>
   </div>
-  <div class="wallet-container active">
+  <div class="wallet-container">
     <img src="./img/card.png" alt="" class="card-image">
     <div class="balance">
       <div class="balance-text">Баланс:</div>
@@ -258,14 +92,19 @@
     <div class="calculator-container">
       <div class="spend-container">
         <span class="spend-text">Заплачу</span>
-        <div class="ruble-flex-input" contenteditable="true" id="visualInput"></div>
-        <input type="text" id="realInput" class="hidden-input" />
+        <div class="ruble-wrapper">
+          <div contenteditable="true" id="visualInput" class="editable-part"></div>
+          <span class="ruble-symbol">₽</span>
+        </div>
       </div>
       <div class="line"></div>
       <img src="./img/icons/swap.svg" class="swap-icon" alt="">
       <div class="give-container">
         <span class="give-text">Получу</span>
-        <div class="ruble-flex-input" contenteditable="true" id="giveInput" data-placeholder="0"></div>
+        <div class="ruble-wrapper">
+          <div contenteditable="true" id="visualInput" class="editable-part"></div>
+          <span class="ruble-symbol">₽</span>
+        </div>
       </div>
     </div>
     <div class="balance-button">Пополнить баланс</div>
@@ -275,93 +114,13 @@
   </div>
 
   <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const visualInput = document.getElementById("visualInput");
-      const giveInput = document.getElementById("giveInput");
-      const realInput = document.getElementById("realInput");
-
-      const rubleHTML = '<span class="ruble-symbol">₽</span>';
-
-      visualInput.setAttribute("data-placeholder", "0");
-      giveInput.setAttribute("data-placeholder", "0");
-
-      function formatNumberWithSpaces(value) {
-        return value.replace(/\B(?=(\d{3})+(?!\d))/g, " ");
-      }
-
-      function placeCaretBeforeRuble(el) {
-        const range = document.createRange();
-        const sel = window.getSelection();
-        const textNode = el.firstChild;
-        if (textNode) {
-          range.setStart(textNode, textNode.length);
-          range.collapse(true);
-          sel.removeAllRanges();
-          sel.addRange(range);
-        }
-      }
-
-      function updateInputs(fromInput, toInput, value) {
-        const digits = value.replace(/[^\d]/g, "");
-        if (digits.length > 0) {
-          const formatted = formatNumberWithSpaces(digits);
-          fromInput.innerHTML = formatted + rubleHTML;
-          toInput.innerHTML = formatted + rubleHTML;
-          realInput.value = digits;
-          placeCaretBeforeRuble(fromInput);
-          placeCaretBeforeRuble(toInput);
-        } else {
-          fromInput.innerHTML = "";
-          toInput.innerHTML = "";
-          realInput.value = "";
-        }
-      }
-
-      visualInput.addEventListener("input", () => {
-        updateInputs(visualInput, giveInput, visualInput.textContent);
-      });
-
-      giveInput.addEventListener("input", () => {
-        updateInputs(giveInput, visualInput, giveInput.textContent);
-      });
-
-      // Защита от удаления ₽
-      function handleBackspace(e, el) {
-        const lastChild = el.lastChild;
-        if (
-          e.key === "Backspace" &&
-          lastChild &&
-          lastChild.className === "ruble-symbol" &&
-          window.getSelection().anchorOffset === el.textContent.length
-        ) {
-          e.preventDefault();
-          const digits = el.textContent.slice(0, -1).replace(/[^\d]/g, "");
-          if (digits.length > 0) {
-            const formatted = formatNumberWithSpaces(digits);
-            el.innerHTML = formatted + rubleHTML;
-            realInput.value = digits;
-            placeCaretBeforeRuble(el);
-          } else {
-            el.innerHTML = "";
-            realInput.value = "";
-          }
-        }
-      }
-
-      visualInput.addEventListener("keydown", (e) => handleBackspace(e, visualInput));
-      giveInput.addEventListener("keydown", (e) => handleBackspace(e, giveInput));
-    });
   </script>
-
-
-
-
-
 
   <script src="./js/user_Info.js"></script>
   <script src="./js/open_Events.js"></script>
   <script src="./js/open_Wallet.js"></script>
   <script src="./js/copy.js"></script>
+  <script src="./js/giveSpendNums.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="./js/firebase.js"></script>
