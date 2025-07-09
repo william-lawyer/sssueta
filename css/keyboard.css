@@ -56,3 +56,10 @@
 .overlay.active {
   display: block;
 }
+
+#keyboard button {
+  user-select: none; /* Запретить выделение текста */
+  -webkit-user-select: none; /* Для Safari */
+  -webkit-tap-highlight-color: transparent; /* Убрать синий фон при тапе на мобилках */
+  outline: none; /* Убрать обводку при фокусе */
+}

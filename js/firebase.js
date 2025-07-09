@@ -70,3 +70,27 @@ async function loadEvents() {
 }
 
 loadEvents();
+
+async function saveUserToFirestore(userId, name, photoUrl, code) {
+  const db = firebase.firestore();
+  const userRef = db.collection("users").doc(userId);
+
+  const doc = await userRef.get();
+
+  if (!doc.exists) {
+    await userRef.set({
+      name,
+      photoUrl,
+      code,
+      balance: 0,
+    });
+  } else {
+    await userRef.set(
+      {
+        name,
+        photoUrl,
+      },
+      { merge: true }
+    );
+  }
+}

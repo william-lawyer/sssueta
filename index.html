@@ -136,13 +136,73 @@
   </div>
 
   <script>
+    window.addEventListener("DOMContentLoaded", async () => {
+      const tg = window.Telegram.WebApp;
+      tg.expand();
+
+      const user = tg.initDataUnsafe.user;
+
+      // Если пользователь не из Telegram — заглушка
+      if (!user || !user.id) {
+        console.warn("Not in Telegram WebApp");
+        document.getElementById('user-name').textContent = "Имя Фамилия";
+        document.querySelector('.code-base').textContent = "XXXX-XXXX";
+        return;
+      }
+
+      const userId = user.id.toString();
+      const name = `${user.first_name} ${user.last_name || ''}`.trim();
+      const photoUrl = user.photo_url || './img/avatar.png';
+
+      // Покажи имя и фото в UI
+      document.getElementById('user-name').textContent = name;
+      document.getElementById('user-photo').src = photoUrl;
+
+      const db = firebase.firestore();
+      const userRef = db.collection("users").doc(userId);
+      const userSnap = await userRef.get();
+
+      let code;
+
+      if (userSnap.exists) {
+        // Уже есть код, покажи его
+        code = userSnap.data().code || "XXXX-XXXX";
+      } else {
+        // Сгенерируй уникальный код
+        code = await generateUniqueCode(db);
+        await userRef.set({
+          name,
+          photoUrl,
+          code,
+          balance: 0
+        });
+      }
+
+      // Покажи код
+      document.querySelector('.code-base').textContent = code;
+    });
+
+    // Генерация уникального 8-значного кода
+    async function generateUniqueCode(db) {
+      const usersRef = db.collection("users");
+      let code;
+      let exists = true;
+
+      while (exists) {
+        code = Math.floor(10000000 + Math.random() * 90000000).toString();
+        const querySnapshot = await usersRef.where("code", "==", code).get();
+        exists = !querySnapshot.empty;
+      }
+
+      return code;
+    }
   </script>
+
   <script src="./js/user_Info.js"></script>
   <script src="./js/open_Events.js"></script>
   <script src="./js/open_Wallet.js"></script>
   <script src="./js/copy.js"></script>
   <script src="./js/giveSpendNums.js"></script>
-  <script src="./js/keyboard.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="./js/firebase.js"></script>
