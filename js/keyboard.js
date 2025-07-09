@@ -5,6 +5,8 @@ const keyboard = document.getElementById("keyboard");
 const overlay = document.getElementById("overlay");
 // walletContainer и walletIcon уже определены в open_Wallet.js
 
+let deleteInterval;
+
 function showKeyboard() {
   if (walletContainer.classList.contains("active")) {
     keyboard.classList.add("active");
@@ -27,20 +29,47 @@ function hideKeyboard() {
   });
 });
 
-// Логика кнопок клавиатуры
-keyboard.addEventListener("click", (e) => {
-  e.stopPropagation();
-  if (e.target.tagName === "BUTTON") {
-    const value = e.target.textContent;
-    if (value === "⌫") {
-      realInput.value = realInput.value.slice(0, -1);
-    } else if (value === "00") {
-      realInput.value += "00";
-    } else if (value) {
-      realInput.value += value;
-    }
-    visualInput.value = realInput.value;
-    giveInput.value = realInput.value;
+// Функция удаления символа
+function deleteChar() {
+  realInput.value = realInput.value.slice(0, -1);
+  visualInput.value = realInput.value;
+  giveInput.value = realInput.value;
+}
+
+// Запуск удаления по удержанию
+function startDeleting(e) {
+  e.preventDefault(); // Не даём браузеру выделять кнопку
+  deleteChar();
+  deleteInterval = setInterval(deleteChar, 100);
+}
+
+// Остановка удаления
+function stopDeleting() {
+  clearInterval(deleteInterval);
+}
+
+// Логика кнопок клавиатуры (ввод цифр, "00", ⌫)
+keyboard.querySelectorAll("button").forEach((btn) => {
+  const value = btn.textContent;
+
+  if (value === "⌫") {
+    btn.addEventListener("mousedown", startDeleting);
+    btn.addEventListener("touchstart", startDeleting);
+
+    btn.addEventListener("mouseup", stopDeleting);
+    btn.addEventListener("touchend", stopDeleting);
+    btn.addEventListener("mouseleave", stopDeleting);
+  } else {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (value === "00") {
+        realInput.value += "00";
+      } else {
+        realInput.value += value;
+      }
+      visualInput.value = realInput.value;
+      giveInput.value = realInput.value;
+    });
   }
 });
 
