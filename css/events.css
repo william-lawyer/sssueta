@@ -87,6 +87,11 @@
   font-size: 2.2vh;
 }
 
+.buy-button:disabled {
+  background-color: #777777;
+  cursor: not-allowed;
+}
+
 a {
   all: unset;
 }

@@ -1,4 +1,6 @@
-// ✅ Инициализация Firebase
+// firebase.js
+
+// ✅ Замените данными из консоли Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyB80f5g7oANki4mhGSTtf9BQ_q_FBVoyt0",
   authDomain: "sssueta-club.firebaseapp.com",
@@ -8,7 +10,10 @@ const firebaseConfig = {
   appId: "1:243713908879:web:36f19a718c7ee7584110fa",
 };
 
+// Инициализация Firebase
 firebase.initializeApp(firebaseConfig);
+
+// Firestore
 const db = firebase.firestore();
 
 async function loadEvents() {
@@ -20,15 +25,18 @@ async function loadEvents() {
         console.log(
           "Нет мероприятий в базе данных — показываем затычки из HTML."
         );
+        eventContainer.innerHTML = "<p>Нет доступных мероприятий.</p>";
         return;
       }
 
+      // Очищаем контейнер перед добавлением новых данных
       eventContainer.innerHTML = "";
 
       snapshot.forEach((doc) => {
         const event = doc.data();
+        const eventId = doc.id; // Получаем ID события
         const html = `
-          <div class="event-item">
+          <div class="event-item" data-event-id="${eventId}">
             <img src="${event.image_url}" alt="" class="event-image">
             <div class="event-info">
               <div class="event-name-container">
@@ -52,100 +60,84 @@ async function loadEvents() {
                 </div>
               </div>
             </div>
-            <div 
-              class="buy-button"
-              data-event-id="${doc.id}"
-              data-event-name="${event.name}"
-              data-event-price="${event.price}"
-            >
-              Купить билет
-            </div>
+            <div class="buy-button" data-price="${
+              event.price
+            }">Купить билет</div>
           </div>
         `;
         eventContainer.innerHTML += html;
       });
 
-      // После рендера элементов — вешаем обработчики кнопок
-      setTimeout(() => {
-        document.querySelectorAll(".buy-button").forEach((button) => {
-          button.addEventListener("click", async () => {
-            const eventId = button.dataset.eventId;
-            const eventName = button.dataset.eventName;
-            const eventPrice = parseInt(button.dataset.eventPrice, 10);
-
-            const tg = window.Telegram.WebApp;
-            const user = tg.initDataUnsafe.user;
-
-            if (!user || !user.id) {
-              showNotification("Вы не авторизованы через Telegram");
-              return;
-            }
-
-            const userId = user.id.toString();
-            const userRef = db.collection("users").doc(userId);
-            const userSnap = await userRef.get();
-
-            if (!userSnap.exists) {
-              showNotification("Пользователь не найден");
-              return;
-            }
-
-            const userData = userSnap.data();
-            const currentBalance = userData.balance ?? 0;
-
-            if (currentBalance < eventPrice) {
-              showNotification("Недостаточно средств на балансе");
-              return;
-            }
-
-            const tickets = userData.tickets || [];
-            const alreadyBought = tickets.some((t) => t.id === eventId);
-
-            if (alreadyBought) {
-              showNotification("Вы уже купили билет на это мероприятие");
-              return;
-            }
-
-            await userRef.update({
-              balance: currentBalance - eventPrice,
-              tickets: firebase.firestore.FieldValue.arrayUnion({
-                id: eventId,
-                name: eventName,
-                price: eventPrice,
-                boughtAt: firebase.firestore.Timestamp.now(),
-              }),
-            });
-
-            // Обновляем баланс в интерфейсе
-            document.querySelector(".balance-value").textContent = `${(
-              currentBalance - eventPrice
-            ).toLocaleString("ru-RU")} ₽`;
-
-            showNotification(`Вы успешно купили билет на "${eventName}"`);
-          });
-        });
-      }, 100);
+      // Добавляем обработчики для кнопок "Купить билет"
+      addBuyButtonListeners();
     });
   } catch (error) {
-    showNotification("Ошибка при загрузке мероприятий:", error);
+    console.error("Ошибка при загрузке мероприятий:", error);
+    eventContainer.innerHTML = "<p>Ошибка загрузки мероприятий.</p>";
   }
+}
+
+// Функция для покупки билета
+async function buyTicket(userId, eventId, price) {
+  try {
+    await db.runTransaction(async (transaction) => {
+      const userRef = db.collection("users").doc(userId);
+      const eventRef = db.collection("events").doc(eventId);
+      const purchaseRef = db.collection("purchases").doc();
+
+      const userDoc = await transaction.get(userRef);
+      const eventDoc = await transaction.get(eventRef);
+
+      if (!userDoc.exists || !eventDoc.exists) {
+        throw new Error("Пользователь или событие не найдены");
+      }
+
+      const balance = userDoc.data().balance || 0;
+      if (balance < price) {
+        throw new Error("Недостаточно средств");
+      }
+
+      // Списываем баланс
+      transaction.update(userRef, { balance: balance - price });
+      // Записываем покупку
+      transaction.set(purchaseRef, {
+        userId,
+        eventId,
+        purchaseDate: firebase.firestore.FieldValue.serverTimestamp(),
+      });
+    });
+    return true;
+  } catch (error) {
+    console.error("Ошибка при покупке билета:", error);
+    throw error;
+  }
+}
+
+// Обработчик для кнопок "Купить билет"
+function addBuyButtonListeners() {
+  const buttons = document.querySelectorAll(".buy-button");
+  buttons.forEach((button) => {
+    button.addEventListener("click", async () => {
+      const eventItem = button.closest(".event-item");
+      const eventId = eventItem.dataset.eventId;
+      const price = parseInt(button.dataset.price);
+      const userId = window.Telegram.WebApp.initDataUnsafe.user?.id?.toString();
+
+      if (!userId) {
+        alert("Пожалуйста, войдите через Telegram");
+        return;
+      }
+
+      try {
+        await buyTicket(userId, eventId, price);
+        button.textContent = "Билет куплен";
+        button.style.backgroundColor = "#777777";
+        button.disabled = true; // Отключаем кнопку после покупки
+      } catch (error) {
+        alert(error.message || "Ошибка при покупке билета");
+      }
+    });
+  });
 }
 
 loadEvents();
-
-// (опционально)
-async function saveUserToFirestore(userId, name, photoUrl, code) {
-  const userRef = db.collection("users").doc(userId);
-  const doc = await userRef.get();
-
-  if (!doc.exists) {
-    await userRef.set({
-      name,
-      photoUrl,
-      code,
-      balance: 0,
-    });
-  } else {
-    await userRef.set({ name, photoUrl }, { merge: true });
-  }
-}
