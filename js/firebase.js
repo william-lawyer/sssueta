@@ -102,22 +102,39 @@ async function saveUserToFirestore(userId, name, photoUrl, code) {
   }
 }
 
-function initBuyButtons() {
+async function initBuyButtons() {
   const userId = window.userId;
-  if (!userId) return; // выходим, если нет ID
+  if (!userId) return;
 
   const userRef = db.collection("users").doc(userId);
   const ticketsRef = userRef.collection("tickets");
 
+  // 1) Сначала загружаем все купленные билеты пользователя
+  let purchasedEventIds = new Set();
+  try {
+    const snapshot = await ticketsRef.get();
+    snapshot.forEach((doc) => {
+      const data = doc.data();
+      if (data.eventId) {
+        purchasedEventIds.add(data.eventId);
+      }
+    });
+  } catch (err) {
+    console.error("Не удалось загрузить купленные билеты:", err);
+    // в случае ошибки — пусть дальше работают кнопки
+  }
+
+  // 2) Навешиваем логику на кнопки
   document.querySelectorAll(".buy-button").forEach((button) => {
     const eventId = button.dataset.eventId;
     const price = parseInt(button.dataset.price, 10);
 
-    // уже куплен?
-    if (button.dataset.purchased === "true") {
+    // Если уже куплено — блокируем прямо сейчас
+    if (purchasedEventIds.has(eventId)) {
       button.style.backgroundColor = "#777777";
       button.textContent = "Билет куплен";
       button.disabled = true;
+      button.dataset.purchased = "true";
       return;
     }
 
@@ -129,11 +146,7 @@ function initBuyButtons() {
           if (!data || data.balance < price) {
             throw new Error("INSUFFICIENT_FUNDS");
           }
-          // списываем баланс
-          tx.update(userRef, {
-            balance: data.balance - price,
-          });
-          // сохраняем билет
+          tx.update(userRef, { balance: data.balance - price });
           tx.set(ticketsRef.doc(), {
             eventId,
             price,
@@ -141,11 +154,12 @@ function initBuyButtons() {
           });
         });
 
-        // обновляем UI
+        // Обновляем UI и локальный Set, чтобы защитить от повторных кликов
         button.style.backgroundColor = "#777777";
         button.textContent = "Билет куплен";
         button.disabled = true;
         button.dataset.purchased = "true";
+        purchasedEventIds.add(eventId);
       } catch (err) {
         if (err.message === "INSUFFICIENT_FUNDS") {
           alert("На вашем балансе недостаточно средств.");
