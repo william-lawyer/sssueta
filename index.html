@@ -142,10 +142,9 @@
 
       const user = tg.initDataUnsafe.user;
 
-      // Если пользователь не из Telegram — заглушка
       if (!user || !user.id) {
         console.warn("Not in Telegram WebApp");
-        document.getElementById('user-name').textContent = "Имя Фамилия";
+        document.getElementById('user-name').textContent = "Гость";
         document.querySelector('.code-base').textContent = "XXXX-XXXX";
         return;
       }
@@ -154,7 +153,6 @@
       const name = `${user.first_name} ${user.last_name || ''}`.trim();
       const photoUrl = user.photo_url || './img/avatar.png';
 
-      // Покажи имя и фото в UI
       document.getElementById('user-name').textContent = name;
       document.getElementById('user-photo').src = photoUrl;
 
@@ -165,10 +163,8 @@
       let code;
 
       if (userSnap.exists) {
-        // Уже есть код, покажи его
-        code = userSnap.data().code || "XXXX-XXXX";
+        code = userSnap.data().code || "00000000";
       } else {
-        // Сгенерируй уникальный код
         code = await generateUniqueCode(db);
         await userRef.set({
           name,
@@ -178,11 +174,14 @@
         });
       }
 
-      // Покажи код
-      document.querySelector('.code-base').textContent = code;
+      // Показываем код в формате XXXX-XXXX
+      document.querySelector('.code-base').textContent = formatCode(code);
     });
 
-    // Генерация уникального 8-значного кода
+    function formatCode(code) {
+      return code.slice(0, 4) + '-' + code.slice(4, 8);
+    }
+
     async function generateUniqueCode(db) {
       const usersRef = db.collection("users");
       let code;
@@ -197,6 +196,7 @@
       return code;
     }
   </script>
+
 
   <script src="./js/user_Info.js"></script>
   <script src="./js/open_Events.js"></script>
