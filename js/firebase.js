@@ -1,5 +1,3 @@
-// firebase.js
-
 // ✅ Замените данными из консоли Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyB80f5g7oANki4mhGSTtf9BQ_q_FBVoyt0",
@@ -16,41 +14,54 @@ firebase.initializeApp(firebaseConfig);
 // Firestore
 const db = firebase.firestore();
 
+// Заведём глобально userId сразу после инициализации Telegram WebApp
+// (Этот код можно переместить в index.html, прямо после tg.initDataUnsafe.user)
+if (window.Telegram && Telegram.WebApp) {
+  const tg = Telegram.WebApp;
+  const user = tg.initDataUnsafe.user;
+  window.userId = user && user.id ? user.id.toString() : null;
+  if (!window.userId) {
+    console.warn("Не удалось получить userId из Telegram WebApp");
+  }
+} else {
+  window.userId = null;
+  console.warn("Telegram WebApp не доступен");
+}
+
 async function loadEvents() {
   const eventContainer = document.querySelector(".event-container");
 
   try {
     db.collection("events").onSnapshot((snapshot) => {
-      if (snapshot.empty) {
-        console.log("Нет мероприятий в базе данных.");
-        eventContainer.innerHTML = "<p>Нет доступных мероприятий.</p>";
-        return;
-      }
-
       // Очищаем контейнер
       eventContainer.innerHTML = "";
 
+      if (snapshot.empty) {
+        console.log("Нет мероприятий в базе — показываем статики из HTML.");
+        return;
+      }
+
+      // Рендерим события
       snapshot.forEach((doc) => {
-        const event = doc.data();
-        const eventId = doc.id;
+        const e = doc.data();
         const html = `
-          <div class="event-item" data-event-id="${eventId}">
-            <img src="${event.image_url}" alt="" class="event-image">
+          <div class="event-item">
+            <img src="${e.image_url}" alt="" class="event-image">
             <div class="event-info">
               <div class="event-name-container">
-                <span class="event-name">${event.name}</span>
-                <span class="event-price">${event.price} ₽</span>
+                <span class="event-name">${e.name}</span>
+                <span class="event-price">${e.price} ₽</span>
               </div>
               <div class="event-date-container">
-                <span class="event-date">Дата проведения: ${event.date}</span>
+                <span class="event-date">Дата проведения: ${e.date}</span>
                 <div class="event-adress-container">
                   <span class="event-adress">
-                    Адрес: 
+                    Адрес:
                     <span class="event-adress-link">
                       <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-                        event.address
+                        e.address
                       )}" target="_blank">
-                        ${event.address}
+                        ${e.address}
                       </a>
                     </span>
                   </span>
@@ -58,90 +69,91 @@ async function loadEvents() {
                 </div>
               </div>
             </div>
-            <button class="buy-button" data-price="${
-              event.price
-            }">Купить билет</button>
+            <div
+              class="buy-button"
+              data-event-id="${doc.id}"
+              data-price="${e.price}"
+            >
+              Купить билет
+            </div>
           </div>
         `;
         eventContainer.innerHTML += html;
       });
 
-      // Добавляем обработчики
-      addBuyButtonListeners();
+      // Навешиваем логику покупки
+      initBuyButtons();
     });
   } catch (error) {
     console.error("Ошибка при загрузке мероприятий:", error);
-    eventContainer.innerHTML = "<p>Ошибка загрузки мероприятий.</p>";
   }
 }
 
-// Функция для покупки билета
-async function buyTicket(userId, eventId, price) {
-  console.log(
-    `Попытка покупки билета: userId=${userId}, eventId=${eventId}, price=${price}`
-  );
-  try {
-    await db.runTransaction(async (transaction) => {
-      const userRef = db.collection("users").doc(userId);
-      const eventRef = db.collection("events").doc(eventId);
-      const purchaseRef = db.collection("purchases").doc();
+loadEvents();
 
-      const userDoc = await transaction.get(userRef);
-      const eventDoc = await transaction.get(eventRef);
+async function saveUserToFirestore(userId, name, photoUrl, code) {
+  const userRef = db.collection("users").doc(userId);
+  const doc = await userRef.get();
 
-      if (!userDoc.exists || !eventDoc.exists) {
-        throw new Error("Пользователь или событие не найдены");
-      }
-
-      const balance = userDoc.data().balance || 0;
-      if (balance < price) {
-        throw new Error("Недостаточно средств");
-      }
-
-      // Списываем баланс
-      transaction.update(userRef, { balance: balance - price });
-      // Записываем покупку
-      transaction.set(purchaseRef, {
-        userId,
-        eventId,
-        purchaseDate: firebase.firestore.FieldValue.serverTimestamp(),
-      });
-    });
-    console.log("Билет успешно куплен");
-    return true;
-  } catch (error) {
-    console.error("Ошибка при покупке билета:", error);
-    throw error;
+  if (!doc.exists) {
+    await userRef.set({ name, photoUrl, code, balance: 0 });
+  } else {
+    await userRef.set({ name, photoUrl }, { merge: true });
   }
 }
 
-// Внутри addBuyButtonListeners
-function addBuyButtonListeners() {
-  const buttons = document.querySelectorAll(".buy-button");
-  console.log(`Найдено кнопок: ${buttons.length}`);
-  buttons.forEach((button) => {
+function initBuyButtons() {
+  const userId = window.userId;
+  if (!userId) return; // выходим, если нет ID
+
+  const userRef = db.collection("users").doc(userId);
+  const ticketsRef = userRef.collection("tickets");
+
+  document.querySelectorAll(".buy-button").forEach((button) => {
+    const eventId = button.dataset.eventId;
+    const price = parseInt(button.dataset.price, 10);
+
+    // уже куплен?
+    if (button.dataset.purchased === "true") {
+      button.style.backgroundColor = "#777777";
+      button.textContent = "Билет куплен";
+      button.disabled = true;
+      return;
+    }
+
     button.addEventListener("click", async () => {
-      console.log("Клик по кнопке 'Купить билет'");
-      const eventItem = button.closest(".event-item");
-      const eventId = eventItem.dataset.eventId;
-      const price = parseInt(button.dataset.price);
-      const userId = window.Telegram.WebApp.initDataUnsafe.user?.id?.toString();
-
-      if (!userId) {
-        alert("Пожалуйста, войдите через Telegram");
-        return;
-      }
-
       try {
-        await buyTicket(userId, eventId, price);
+        await db.runTransaction(async (tx) => {
+          const userDoc = await tx.get(userRef);
+          const data = userDoc.data();
+          if (!data || data.balance < price) {
+            throw new Error("INSUFFICIENT_FUNDS");
+          }
+          // списываем баланс
+          tx.update(userRef, {
+            balance: data.balance - price,
+          });
+          // сохраняем билет
+          tx.set(ticketsRef.doc(), {
+            eventId,
+            price,
+            purchasedAt: firebase.firestore.FieldValue.serverTimestamp(),
+          });
+        });
+
+        // обновляем UI
+        button.style.backgroundColor = "#777777";
         button.textContent = "Билет куплен";
         button.disabled = true;
-        button.classList.add("bought"); // Добавляем класс
-      } catch (error) {
-        alert(error.message || "Ошибка при покупке билета");
+        button.dataset.purchased = "true";
+      } catch (err) {
+        if (err.message === "INSUFFICIENT_FUNDS") {
+          alert("На вашем балансе недостаточно средств.");
+        } else {
+          console.error("Ошибка покупки билета:", err);
+          alert("Не удалось купить билет. Попробуйте позже.");
+        }
       }
     });
   });
 }
-
-loadEvents();
