@@ -22,19 +22,17 @@ async function loadEvents() {
   try {
     db.collection("events").onSnapshot((snapshot) => {
       if (snapshot.empty) {
-        console.log(
-          "Нет мероприятий в базе данных — показываем затычки из HTML."
-        );
+        console.log("Нет мероприятий в базе данных.");
         eventContainer.innerHTML = "<p>Нет доступных мероприятий.</p>";
         return;
       }
 
-      // Очищаем контейнер перед добавлением новых данных
+      // Очищаем контейнер
       eventContainer.innerHTML = "";
 
       snapshot.forEach((doc) => {
         const event = doc.data();
-        const eventId = doc.id; // Получаем ID события
+        const eventId = doc.id;
         const html = `
           <div class="event-item" data-event-id="${eventId}">
             <img src="${event.image_url}" alt="" class="event-image">
@@ -60,15 +58,15 @@ async function loadEvents() {
                 </div>
               </div>
             </div>
-            <div class="buy-button" data-price="${
+            <button class="buy-button" data-price="${
               event.price
-            }">Купить билет</div>
+            }">Купить билет</button>
           </div>
         `;
         eventContainer.innerHTML += html;
       });
 
-      // Добавляем обработчики для кнопок "Купить билет"
+      // Добавляем обработчики
       addBuyButtonListeners();
     });
   } catch (error) {
@@ -79,6 +77,9 @@ async function loadEvents() {
 
 // Функция для покупки билета
 async function buyTicket(userId, eventId, price) {
+  console.log(
+    `Попытка покупки билета: userId=${userId}, eventId=${eventId}, price=${price}`
+  );
   try {
     await db.runTransaction(async (transaction) => {
       const userRef = db.collection("users").doc(userId);
@@ -106,6 +107,7 @@ async function buyTicket(userId, eventId, price) {
         purchaseDate: firebase.firestore.FieldValue.serverTimestamp(),
       });
     });
+    console.log("Билет успешно куплен");
     return true;
   } catch (error) {
     console.error("Ошибка при покупке билета:", error);
@@ -113,11 +115,13 @@ async function buyTicket(userId, eventId, price) {
   }
 }
 
-// Обработчик для кнопок "Купить билет"
+// Внутри addBuyButtonListeners
 function addBuyButtonListeners() {
   const buttons = document.querySelectorAll(".buy-button");
+  console.log(`Найдено кнопок: ${buttons.length}`);
   buttons.forEach((button) => {
     button.addEventListener("click", async () => {
+      console.log("Клик по кнопке 'Купить билет'");
       const eventItem = button.closest(".event-item");
       const eventId = eventItem.dataset.eventId;
       const price = parseInt(button.dataset.price);
@@ -131,8 +135,8 @@ function addBuyButtonListeners() {
       try {
         await buyTicket(userId, eventId, price);
         button.textContent = "Билет куплен";
-        button.style.backgroundColor = "#777777";
-        button.disabled = true; // Отключаем кнопку после покупки
+        button.disabled = true;
+        button.classList.add("bought"); // Добавляем класс
       } catch (error) {
         alert(error.message || "Ошибка при покупке билета");
       }
