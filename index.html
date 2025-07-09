@@ -11,8 +11,8 @@
   <link rel="stylesheet" href="./css/events.css">
   <link rel="stylesheet" href="./css/notification.css">
   <link rel="stylesheet" href="./css/wallet.css">
+  <link rel="stylesheet" href="./css/keyboard.css">
   <style>
-
   </style>
 </head>
 
@@ -93,7 +93,7 @@
       <div class="spend-container">
         <span class="spend-text">Заплачу</span>
         <div class="input-wrapper">
-          <input type="text" id="visualInput" class="ruble-flex-input" placeholder="0" inputmode="numeric" />
+          <input type="text" id="visualInput" class="ruble-flex-input" placeholder="0" inputmode="numeric" readonly />
           <span class="ruble-symbol" id="visualRuble">₽</span>
         </div>
       </div>
@@ -102,7 +102,7 @@
       <div class="give-container">
         <span class="give-text">Получу</span>
         <div class="input-wrapper">
-          <input type="text" id="giveInput" class="ruble-flex-input" placeholder="0" inputmode="numeric" />
+          <input type="text" id="giveInput" class="ruble-flex-input" placeholder="0" inputmode="numeric" readonly />
           <span class="ruble-symbol" id="giveRuble">С</span>
         </div>
       </div>
@@ -116,14 +116,33 @@
     Адрес скопирован!
   </div>
 
+  <div class="keyboard-container" id="keyboard">
+    <div class="keyboard">
+      <button>1</button>
+      <button>2</button>
+      <button>3</button>
+      <button>4</button>
+      <button>5</button>
+      <button>6</button>
+      <button>7</button>
+      <button>8</button>
+      <button>9</button>
+      <button>0</button>
+      <button>00</button>
+      <button>⌫</button>
+    </div>
+  </div>
+  <div class="overlay" id="overlay">
+  </div>
+
   <script>
   </script>
-
   <script src="./js/user_Info.js"></script>
   <script src="./js/open_Events.js"></script>
   <script src="./js/open_Wallet.js"></script>
   <script src="./js/copy.js"></script>
   <script src="./js/giveSpendNums.js"></script>
+  <script src="./js/keyboard.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="./js/firebase.js"></script>
