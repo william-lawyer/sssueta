@@ -162,36 +162,30 @@
 
       const db = firebase.firestore();
       const userRef = db.collection("users").doc(userId);
-      const userSnap = await userRef.get();
+      userRef.onSnapshot(async (userSnap) => {
+        if (userSnap.exists) {
+          const data = userSnap.data();
+          const code = data.code || "00000000";
+          const balance = data.balance ?? 0;
 
-      let code;
+          // Обновляем отображение баланса и кода
+          document.querySelector(".balance-value").textContent = `${balance} С`;
+          document.getElementById('user-code').textContent = formatCode(code);
+        } else {
+          // Если пользователь не существует — создаем его
+          const code = await generateUniqueCode(db);
 
-      if (userSnap.exists) {
-        // Пользователь уже есть — получаем сохранённые данные
-        const data = userSnap.data();
-        code = data.code || "00000000";
-        const balance = data.balance ?? 0;
+          await userRef.set({
+            name,
+            photoUrl,
+            code,
+            balance: 0
+          });
 
-        // Установим баланс
-        document.querySelector(".balance-value").textContent = `${balance} С`;
-
-      } else {
-        // Генерация уникального 8-значного кода
-        code = await generateUniqueCode(db);
-
-        await userRef.set({
-          name,
-          photoUrl,
-          code,
-          balance: 0
-        });
-
-        // Установим стартовый баланс
-        document.querySelector(".balance-value").textContent = `0 С`;
-      }
-
-      // Отображаем код в формате XXXX-XXXX
-      document.getElementById('user-code').textContent = formatCode(code);
+          document.querySelector(".balance-value").textContent = `0 С`;
+          document.getElementById('user-code').textContent = formatCode(code);
+        }
+      });
     });
 
     // Форматирование кода (12345678 → 1234-5678)
