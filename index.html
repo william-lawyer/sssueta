@@ -87,7 +87,7 @@
     <img src="./img/card.png" alt="" class="card-image">
     <div class="balance">
       <div class="balance-text">Баланс:</div>
-      <div class="balance-value">1000 С</div>
+      <div class="balance-value">1000 ₽</div>
     </div>
     <div class="calculator-container">
       <div class="spend-container">
@@ -103,7 +103,7 @@
         <span class="give-text">Получу</span>
         <div class="input-wrapper">
           <input type="text" id="giveInput" class="ruble-flex-input" placeholder="0" inputmode="numeric" readonly />
-          <span class="ruble-symbol" id="giveRuble">С</span>
+          <span class="ruble-symbol" id="giveRuble">₽</span>
         </div>
       </div>
     </div>
@@ -115,6 +115,9 @@
   <div id="copy-notification" style="display: none;" class="copy-notification">
     Адрес скопирован!
   </div>
+
+  <div id="custom-notification" class="copy-notification" style="display: none;"></div>
+
 
   <div class="keyboard-container" id="keyboard">
     <div class="keyboard">
@@ -148,7 +151,7 @@
         document.getElementById('user-name').textContent = "Гость";
         document.getElementById('user-photo').src = './img/avatar.png';
         document.getElementById('user-code').textContent = "XXXX-XXXX";
-        document.querySelector(".balance-value").textContent = `0 С`;
+        document.querySelector(".balance-value").textContent = `0 ₽`;
         return;
       }
 
@@ -169,7 +172,7 @@
           const balance = data.balance ?? 0;
 
           // Обновляем отображение баланса и кода
-          document.querySelector(".balance-value").textContent = `${balance} С`;
+          document.querySelector(".balance-value").textContent = `${balance.toLocaleString('ru-RU')} С`;
           document.getElementById('user-code').textContent = formatCode(code);
         } else {
           // Если пользователь не существует — создаем его
@@ -182,7 +185,7 @@
             balance: 0
           });
 
-          document.querySelector(".balance-value").textContent = `0 С`;
+          document.querySelector(".balance-value").textContent = `0 ₽`;
           document.getElementById('user-code').textContent = formatCode(code);
         }
       });
@@ -206,6 +209,21 @@
       }
 
       return code;
+    }
+
+    function showNotification(message, duration = 3000) {
+      const notification = document.getElementById("custom-notification");
+      notification.textContent = message;
+      notification.classList.add("show");
+
+      setTimeout(() => {
+        notification.classList.remove("show");
+        setTimeout(() => {
+          notification.style.display = "none";
+        }, 300);
+      }, duration);
+
+      notification.style.display = "block";
     }
   </script>
 
