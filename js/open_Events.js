@@ -89,7 +89,7 @@ async function handleBuyTicket(eventId, button) {
     // Обновляем интерфейс
     button.textContent = "Куплено";
     button.style.backgroundColor = "#777777";
-    button.style.setProperty("padding", "2.3vh 14vh", "important");
+    button.classList.add("purchased");
     button.disabled = true;
     console.log("Button updated:", {
       text: button.textContent,
