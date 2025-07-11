@@ -96,3 +96,18 @@ a {
   text-decoration: underline;
   cursor: pointer;
 }
+
+.buy-button {
+  color: #ffffff;
+  background-color: #5541d9;
+  border-radius: 2vh;
+  padding: 2.3vh 11.5vh;
+  font-family: "Inter-SemiBold", sans-serif;
+  font-size: 2.2vh;
+  cursor: pointer;
+  text-align: center;
+}
+
+.buy-button.purchased {
+  background-color: #777777;
+}
