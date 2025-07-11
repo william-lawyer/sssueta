@@ -73,7 +73,6 @@ async function loadEvents() {
         `;
         eventContainer.innerHTML += html;
       });
-      // No buy-button listeners added since the user isn’t logged in
     });
 
     return; // Exit the function early
@@ -105,10 +104,15 @@ async function loadEvents() {
         const isPurchased = tickets.some(
           (ticket) => ticket.eventId === eventId
         );
+        console.log(
+          `Event ID: ${eventId}, isPurchased: ${isPurchased}, Tickets:`,
+          tickets
+        ); // Debug log
         const buttonText = isPurchased ? "Куплено" : "Купить билет";
         const buttonStyle = isPurchased
           ? "background-color: #777777; padding: 2.3vh 14vh;"
-          : "background-color: #5541d9;"; // Removed padding for unpurchased buttons
+          : "background-color: #5541d9;";
+        const buttonDisabled = isPurchased ? "disabled" : "";
         const html = `
           <div class="event-item" data-event-id="${eventId}">
             <img src="${event.image_url}" alt="" class="event-image">
@@ -130,11 +134,11 @@ async function loadEvents() {
                       </a>
                     </span>
                   </span>
-                  <img src="./img/icons/copy.svg" class="copy-icon26">
+                  <img src="./img/icons/copy.svg" class="copy-icon">
                 </div>
               </div>
             </div>
-            <div class="buy-button" style="${buttonStyle}">${buttonText}</div>
+            <div class="buy-button" style="${buttonStyle}" ${buttonDisabled}>${buttonText}</div>
           </div>
         `;
         eventContainer.innerHTML += html;
@@ -162,7 +166,7 @@ async function saveUserToFirestore(userId, name, photoUrl, code) {
       photoUrl,
       code,
       balance: 0,
-      tickets: [], // Добавляем поле для хранения билетов
+      tickets: [],
     });
   } else {
     await userRef.set(

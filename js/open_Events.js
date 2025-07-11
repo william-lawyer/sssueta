@@ -18,10 +18,11 @@ document.addEventListener("click", (e) => {
 });
 
 // Добавление обработчиков на кнопки "Купить билет"
+// Добавление обработчиков на кнопки "Купить билет"
 function addBuyButtonListeners() {
   const buyButtons = document.querySelectorAll(".buy-button");
   buyButtons.forEach((button) => {
-    if (button.textContent === "Купить билет") {
+    if (button.textContent === "Купить билет" && !button.disabled) {
       const eventItem = button.closest(".event-item");
       const eventId = eventItem.dataset.eventId;
       button.addEventListener("click", () => handleBuyTicket(eventId, button));
