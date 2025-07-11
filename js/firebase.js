@@ -1,3 +1,4 @@
+// firebase.js
 // ✅ Замените данными из консоли Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyB80f5g7oANki4mhGSTtf9BQ_q_FBVoyt0",
@@ -87,6 +88,7 @@ async function loadEvents() {
     const userSnap = await userRef.get();
     const userData = userSnap.data();
     const tickets = userData.tickets || [];
+    console.log("User tickets:", tickets); // Debug log
 
     db.collection("events").onSnapshot((snapshot) => {
       if (snapshot.empty) {
@@ -104,10 +106,7 @@ async function loadEvents() {
         const isPurchased = tickets.some(
           (ticket) => ticket.eventId === eventId
         );
-        console.log(
-          `Event ID: ${eventId}, isPurchased: ${isPurchased}, Tickets:`,
-          tickets
-        ); // Debug log
+        console.log(`Event ID: ${eventId}, isPurchased: ${isPurchased}`); // Debug log
         const buttonText = isPurchased ? "Куплено" : "Купить билет";
         const buttonStyle = isPurchased
           ? "background-color: #777777; padding: 2.3vh 14vh;"

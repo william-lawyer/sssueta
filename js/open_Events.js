@@ -18,14 +18,18 @@ document.addEventListener("click", (e) => {
 });
 
 // Добавление обработчиков на кнопки "Купить билет"
-// Добавление обработчиков на кнопки "Купить билет"
 function addBuyButtonListeners() {
   const buyButtons = document.querySelectorAll(".buy-button");
   buyButtons.forEach((button) => {
-    if (button.textContent === "Купить билет" && !button.disabled) {
-      const eventItem = button.closest(".event-item");
+    // Remove existing listeners to prevent duplicates
+    const newButton = button.cloneNode(true);
+    button.parentNode.replaceChild(newButton, button);
+    if (newButton.textContent === "Купить билет" && !newButton.disabled) {
+      const eventItem = newButton.closest(".event-item");
       const eventId = eventItem.dataset.eventId;
-      button.addEventListener("click", () => handleBuyTicket(eventId, button));
+      newButton.addEventListener("click", () =>
+        handleBuyTicket(eventId, newButton)
+      );
     }
   });
 }
@@ -75,6 +79,7 @@ async function handleBuyTicket(eventId, button) {
     // Списываем деньги и добавляем билет
     const newBalance = balance - price;
     const newTicket = { eventId, purchaseDate: new Date().toISOString() };
+    console.log("Saving ticket:", newTicket);
 
     await userRef.update({
       balance: newBalance,
@@ -84,8 +89,14 @@ async function handleBuyTicket(eventId, button) {
     // Обновляем интерфейс
     button.textContent = "Куплено";
     button.style.backgroundColor = "#777777";
-    button.style.padding = "2.3vh 14vh;";
-    button.disabled = true; // Отключаем кнопку, чтобы не нажималась повторно
+    button.style.padding = "2.3vh 14vh";
+    button.disabled = true;
+    console.log("Button updated:", {
+      text: button.textContent,
+      backgroundColor: button.style.backgroundColor,
+      padding: button.style.padding,
+      disabled: button.disabled,
+    });
   } catch (error) {
     console.error("Ошибка при покупке билета:", error);
     alert("Произошла ошибка при покупке билета.");
