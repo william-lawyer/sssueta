@@ -32,20 +32,23 @@ async function loadEvents() {
       // Очищаем контейнер перед добавлением новых данных
       eventContainer.innerHTML = "";
 
-      // Получаем данные пользователя для проверки купленных билетов
-      let purchasedEvents = [];
+      // Получаем данные о купленных билетах пользователя
+      let purchasedEventIds = [];
       if (userId) {
         const userRef = db.collection("users").doc(userId);
         const userSnap = await userRef.get();
         if (userSnap.exists) {
-          purchasedEvents = userSnap.data().purchasedEvents || [];
+          const userData = userSnap.data();
+          purchasedEventIds = (userData.purchasedTickets || []).map(
+            (ticket) => ticket.eventId
+          );
         }
       }
 
       snapshot.forEach((doc) => {
         const event = doc.data();
         const eventId = doc.id;
-        const isPurchased = purchasedEvents.includes(eventId);
+        const isPurchased = purchasedEventIds.includes(eventId);
         const buttonText = isPurchased ? "Куплено" : "Купить билет";
         const buttonStyle = isPurchased
           ? "background-color: #777777;"
@@ -109,8 +112,8 @@ async function loadEvents() {
           const userBalance = userData.balance || 0;
 
           // Проверяем, куплен ли билет
-          const purchasedEvents = userData.purchasedEvents || [];
-          if (purchasedEvents.includes(eventId)) {
+          const purchasedTickets = userData.purchasedTickets || [];
+          if (purchasedTickets.some((ticket) => ticket.eventId === eventId)) {
             alert("Билет на это мероприятие уже куплен.");
             return;
           }
@@ -121,12 +124,26 @@ async function loadEvents() {
             return;
           }
 
-          // Списываем деньги и добавляем билет
+          // Формируем объект билета
+          const ticket = {
+            eventId,
+            name: eventData.name,
+            price: eventData.price,
+            date: eventData.date,
+            address: eventData.address,
+            image_url: eventData.image_url,
+            purchaseDate: firebase.firestore.FieldValue.serverTimestamp(),
+          };
+
+          // Списываем деньги и сохраняем билет
           try {
-            await userRef.update({
-              balance: userBalance - eventPrice,
-              purchasedEvents:
-                firebase.firestore.FieldValue.arrayUnion(eventId),
+            await db.runTransaction(async (transaction) => {
+              // Списываем баланс
+              transaction.update(userRef, {
+                balance: userBalance - eventPrice,
+                purchasedTickets:
+                  firebase.firestore.FieldValue.arrayUnion(ticket),
+              });
             });
 
             // Обновляем кнопку
@@ -155,7 +172,7 @@ async function saveUserToFirestore(userId, name, photoUrl, code) {
       photoUrl,
       code,
       balance: 0,
-      purchasedEvents: [], // Добавляем поле для купленных билетов
+      purchasedTickets: [], // Инициализируем массив для купленных билетов
     });
   } else {
     await userRef.set(
