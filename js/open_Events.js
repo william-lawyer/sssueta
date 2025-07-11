@@ -83,6 +83,7 @@ async function handleBuyTicket(eventId, button) {
     // Обновляем интерфейс
     button.textContent = "Куплено";
     button.style.backgroundColor = "#777777";
+    button.style.padding = "2.3vh 14vh;";
     button.disabled = true; // Отключаем кнопку, чтобы не нажималась повторно
   } catch (error) {
     console.error("Ошибка при покупке билета:", error);

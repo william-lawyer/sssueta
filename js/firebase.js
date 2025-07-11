@@ -108,7 +108,7 @@ async function loadEvents() {
         const buttonText = isPurchased ? "Куплено" : "Купить билет";
         const buttonStyle = isPurchased
           ? "background-color: #777777;"
-          : "background-color: #5541d9;";
+          : "background-color: #5541d9;" + "padding: 2.3vh 14vh;";
         const html = `
           <div class="event-item" data-event-id="${eventId}">
             <img src="${event.image_url}" alt="" class="event-image">
