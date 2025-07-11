@@ -88,7 +88,7 @@ async function loadEvents() {
     const userSnap = await userRef.get();
     const userData = userSnap.data();
     const tickets = userData.tickets || [];
-    console.log("User tickets:", tickets); // Debug log
+    console.log("User tickets:", tickets);
 
     db.collection("events").onSnapshot((snapshot) => {
       if (snapshot.empty) {
@@ -106,7 +106,7 @@ async function loadEvents() {
         const isPurchased = tickets.some(
           (ticket) => ticket.eventId === eventId
         );
-        console.log(`Event ID: ${eventId}, isPurchased: ${isPurchased}`); // Debug log
+        console.log(`Event ID: ${eventId}, isPurchased: ${isPurchased}`);
         const buttonText = isPurchased ? "Куплено" : "Купить билет";
         const buttonStyle = isPurchased
           ? "background-color: #777777; padding: 2.3vh 14vh;"
