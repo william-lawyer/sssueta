@@ -9,7 +9,12 @@ const firebaseConfig = {
 };
 
 // Инициализация Firebase
-firebase.initializeApp(firebaseConfig);
+try {
+  firebase.initializeApp(firebaseConfig);
+  console.log("Firebase успешно инициализирован");
+} catch (error) {
+  console.error("Ошибка инициализации Firebase:", error);
+}
 
 // Firestore
 const db = firebase.firestore();
@@ -31,6 +36,7 @@ async function loadEvents() {
 
       // Очищаем контейнер перед добавлением новых данных
       eventContainer.innerHTML = "";
+      console.log("Контейнер мероприятий очищен");
 
       // Получаем данные о купленных билетах пользователя
       let purchasedEventIds = [];
@@ -42,7 +48,7 @@ async function loadEvents() {
           purchasedEventIds = (userData.purchasedTickets || []).map(
             (ticket) => ticket.eventId
           );
-          console.log("Купленные билеты (eventIds):", purchasedEventIds); // Отладка
+          console.log("Купленные билеты (eventIds):", purchasedEventIds);
         } else {
           console.log(
             "Пользователь не найден, инициализация пустого массива билетов"
@@ -53,22 +59,28 @@ async function loadEvents() {
       snapshot.forEach((doc) => {
         const event = doc.data();
         const eventId = doc.id;
+
+        // Проверяем наличие всех необходимых полей
+        const requiredFields = [
+          "name",
+          "price",
+          "date",
+          "address",
+          "image_url",
+        ];
+        const missingFields = requiredFields.filter((field) => !event[field]);
+        if (missingFields.length > 0) {
+          console.warn(
+            `Мероприятие ${eventId} имеет отсутствующие поля:`,
+            missingFields
+          );
+        }
+
         const isPurchased = purchasedEventIds.includes(eventId);
         const buttonText = isPurchased ? "Куплено" : "Купить билет";
         const buttonStyle = isPurchased
           ? "background-color: #777777;"
           : "background-color: #5541d9;";
-
-        // Проверяем наличие всех полей в данных мероприятия
-        if (
-          !event.name ||
-          !event.price ||
-          !event.date ||
-          !event.address ||
-          !event.image_url
-        ) {
-          console.warn(`Мероприятие ${eventId} имеет неполные данные:`, event);
-        }
 
         const html = `
           <div class="event-item">
@@ -112,6 +124,7 @@ async function loadEvents() {
         button.addEventListener("click", async () => {
           if (!userId) {
             alert("Пожалуйста, войдите через Telegram.");
+            console.log("Пользователь не авторизован через Telegram");
             return;
           }
 
@@ -126,10 +139,12 @@ async function loadEvents() {
 
             if (!userSnap.exists) {
               alert("Ошибка: пользователь не найден.");
+              console.error("Пользователь не найден:", userId);
               return;
             }
             if (!eventSnap.exists) {
               alert("Ошибка: мероприятие не найдено.");
+              console.error("Мероприятие не найдено:", eventId);
               return;
             }
 
@@ -138,10 +153,31 @@ async function loadEvents() {
             const eventPrice = eventData.price;
             const userBalance = userData.balance || 0;
 
+            // Проверяем наличие обязательных полей
+            const requiredFields = [
+              "name",
+              "price",
+              "date",
+              "address",
+              "image_url",
+            ];
+            const missingFields = requiredFields.filter(
+              (field) => !eventData[field]
+            );
+            if (missingFields.length > 0) {
+              alert("Ошибка: у мероприятия отсутствуют некоторые данные.");
+              console.error(
+                `Мероприятие ${eventId} имеет отсутствующие поля:`,
+                missingFields
+              );
+              return;
+            }
+
             // Проверяем, куплен ли билет
             const purchasedTickets = userData.purchasedTickets || [];
             if (purchasedTickets.some((ticket) => ticket.eventId === eventId)) {
               alert("Билет на это мероприятие уже куплен.");
+              console.log("Билет уже куплен для eventId:", eventId);
               return;
             }
 
@@ -150,21 +186,30 @@ async function loadEvents() {
               alert(
                 "Недостаточно средств на балансе или цена мероприятия не указана."
               );
+              console.log(
+                "Недостаточно средств: баланс =",
+                userBalance,
+                ", цена =",
+                eventPrice
+              );
               return;
             }
 
             // Формируем объект билета
             const ticket = {
               eventId: eventId,
-              name: eventData.name || "Без названия",
-              price: eventData.price || 0,
-              date: eventData.date || "Не указана",
-              address: eventData.address || "Не указан",
-              image_url: eventData.image_url || "./img/placeholder.png",
+              name: eventData.name,
+              price: eventData.price,
+              date: eventData.date,
+              address: eventData.address,
+              image_url: eventData.image_url,
               purchaseDate: firebase.firestore.FieldValue.serverTimestamp(),
             };
 
-            console.log("Объект билета перед сохранением:", ticket); // Отладка
+            console.log(
+              "Объект билета перед сохранением:",
+              JSON.stringify(ticket, null, 2)
+            );
 
             // Списываем деньги и сохраняем билет
             await db.runTransaction(async (transaction) => {
@@ -178,10 +223,7 @@ async function loadEvents() {
             // Обновляем кнопку
             button.textContent = "Куплено";
             button.style.backgroundColor = "#777777";
-            console.log(
-              "Билет успешно куплен, обновлена кнопка для eventId:",
-              eventId
-            );
+            console.log("Билет успешно куплен для eventId:", eventId);
             alert("Билет успешно куплен!");
           } catch (error) {
             console.error("Ошибка при покупке билета:", error);
@@ -222,6 +264,7 @@ async function saveUserToFirestore(userId, name, photoUrl, code) {
     }
   } catch (error) {
     console.error("Ошибка при сохранении пользователя:", error);
+    alert("Ошибка при сохранении данных пользователя: " + error.message);
   }
 }
 
