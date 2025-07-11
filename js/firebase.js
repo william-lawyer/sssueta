@@ -107,8 +107,8 @@ async function loadEvents() {
         );
         const buttonText = isPurchased ? "Куплено" : "Купить билет";
         const buttonStyle = isPurchased
-          ? "background-color: #777777;"
-          : "background-color: #5541d9;" + "padding: 2.3vh 14vh;";
+          ? "background-color: #777777; padding: 2.3vh 14vh;"
+          : "background-color: #5541d9;"; // Removed padding for unpurchased buttons
         const html = `
           <div class="event-item" data-event-id="${eventId}">
             <img src="${event.image_url}" alt="" class="event-image">
@@ -130,7 +130,7 @@ async function loadEvents() {
                       </a>
                     </span>
                   </span>
-                  <img src="./img/icons/copy.svg" class="copy-icon">
+                  <img src="./img/icons/copy.svg" class="copy-icon26">
                 </div>
               </div>
             </div>
@@ -140,7 +140,7 @@ async function loadEvents() {
         eventContainer.innerHTML += html;
       });
 
-      // Add event listeners to buy buttons (assuming this function exists)
+      // Add event listeners to buy buttons
       addBuyButtonListeners();
     });
   } catch (error) {
