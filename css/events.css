@@ -109,5 +109,6 @@ a {
 }
 
 .buy-button.purchased {
-  background-color: #777777;
+  background-color: #777777 !important;
+  padding: 2.3vh 14vh !important;
 }

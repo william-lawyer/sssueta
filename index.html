@@ -160,32 +160,47 @@
       document.getElementById('user-name').textContent = name;
       document.getElementById('user-photo').src = photoUrl;
 
+      // Инициализируем Firebase
+      const firebaseConfig = {
+        apiKey: "AIzaSyB80f5g7oANki4mhGSTtf9BQ_q_FBVoyt0",
+        authDomain: "sssueta-club.firebaseapp.com",
+        projectId: "sssueta-club",
+        storageBucket: "sssueta-club.firebasestorage.app",
+        messagingSenderId: "243713908879",
+        appId: "1:243713908879:web:36f19a718c7ee7584110fa",
+      };
+
+      firebase.initializeApp(firebaseConfig);
       const db = firebase.firestore();
-      const userRef = db.collection("users").doc(userId);
+      const userRef = db.collection("users").doc(userId); // Теперь userRef объявлена до использования
+
+      // Функция для форматирования баланса
+      function formatBalance(balance) {
+        return balance.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+      }
+
       userRef.onSnapshot(async (userSnap) => {
         if (userSnap.exists) {
           const data = userSnap.data();
           const code = data.code || "00000000";
           const balance = data.balance ?? 0;
 
-          // Обновляем отображение баланса и кода
-          document.querySelector(".balance-value").textContent = `${balance} С`;
+          document.querySelector(".balance-value").textContent = `${formatBalance(balance)} С`;
           document.getElementById('user-code').textContent = formatCode(code);
         } else {
-          // Если пользователь не существует — создаем его
           const code = await generateUniqueCode(db);
-
           await userRef.set({
             name,
             photoUrl,
             code,
             balance: 0
           });
-
-          document.querySelector(".balance-value").textContent = `0 С`;
+          document.querySelector(".balance-value").textContent = "0 С";
           document.getElementById('user-code').textContent = formatCode(code);
         }
       });
+
+      // Остальной код...
     });
 
     // Форматирование кода (12345678 → 1234-5678)
@@ -200,7 +215,7 @@
       let exists = true;
 
       while (exists) {
-        code = Math.floor(10000000 + Math.random() * 90000000).toString(); // 8 цифр
+        code = Math.floor(10000000 + Math.random() * 90000000).toString();
         const querySnapshot = await usersRef.where("code", "==", code).get();
         exists = !querySnapshot.empty;
       }
