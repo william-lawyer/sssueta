@@ -36,6 +36,7 @@ async function loadEvents() {
         const event = doc.data();
         const eventId = doc.id;
         eventContainer.innerHTML += createEventHTML(event, eventId, false);
+        setupCopyButtons();
       });
     });
     return;
@@ -43,6 +44,21 @@ async function loadEvents() {
 
   const userId = window.Telegram.WebApp.initDataUnsafe.user.id.toString();
   const userRef = db.collection("users").doc(userId);
+
+  function setupCopyButtons() {
+    // Удаляем старые обработчики, чтобы избежать дублирования
+    document.querySelectorAll(".copy-icon").forEach((icon) => {
+      icon.replaceWith(icon.cloneNode(true));
+    });
+
+    // Добавляем обработчики на новые элементы
+    document.querySelectorAll(".copy-icon").forEach((icon) => {
+      icon.addEventListener("click", function (e) {
+        copyAddress(this);
+        e.stopPropagation();
+      });
+    });
+  }
 
   try {
     const userSnap = await userRef.get();
