@@ -145,6 +145,7 @@ async function loadEvents() {
 
       // Add event listeners to buy buttons
       addBuyButtonListeners();
+      setupCopyButtons();
     });
   } catch (error) {
     console.error("Error loading events:", error);
