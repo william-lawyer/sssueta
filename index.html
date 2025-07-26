@@ -137,24 +137,29 @@
 
   <script>
     window.addEventListener("DOMContentLoaded", async () => {
+      console.log("Инициализация WebApp...");
       const tg = window.Telegram.WebApp;
       tg.expand();
+      console.log("WebApp расширен:", tg.isExpanded);
 
       const user = tg.initDataUnsafe.user;
+      console.log("Данные пользователя:", user);
 
       // Проверка инициализации Telegram WebApp
       if (!user || !user.id) {
-        console.warn("Not in Telegram WebApp");
+        console.error("Ошибка: пользователь не авторизован в Telegram WebApp");
         document.getElementById('user-name').textContent = "Гость";
         document.getElementById('user-photo').src = './img/avatar.png';
         document.getElementById('user-code').textContent = "XXXX-XXXX";
         document.querySelector(".balance-value").textContent = `0 С`;
+        tg.showAlert("Ошибка: не удалось загрузить данные пользователя. Откройте через Telegram.");
         return;
       }
 
       const userId = user.id.toString();
       const name = `${user.first_name} ${user.last_name || ''}`.trim();
       const photoUrl = user.photo_url || './img/avatar.png';
+      console.log("ID пользователя:", userId, "Имя:", name);
 
       // Отображаем имя и фото
       document.getElementById('user-name').textContent = name;
@@ -173,6 +178,7 @@
       firebase.initializeApp(firebaseConfig);
       const db = firebase.firestore();
       const userRef = db.collection("users").doc(userId);
+      console.log("Firestore инициализирован, userRef:", userId);
 
       // Функция для форматирования баланса
       function formatBalance(balance) {
@@ -180,6 +186,7 @@
       }
 
       userRef.onSnapshot(async (userSnap) => {
+        console.log("Получен снимок данных пользователя:", userSnap.exists);
         if (userSnap.exists) {
           const data = userSnap.data();
           const code = data.code || "00000000";
@@ -187,6 +194,7 @@
 
           document.querySelector(".balance-value").textContent = `${formatBalance(balance)} С`;
           document.getElementById('user-code').textContent = formatCode(code);
+          console.log("Обновлены данные: баланс =", balance, "код =", code);
         } else {
           const code = await generateUniqueCode(db);
           await userRef.set({
@@ -197,30 +205,36 @@
           });
           document.querySelector(".balance-value").textContent = "0 С";
           document.getElementById('user-code').textContent = formatCode(code);
+          console.log("Создан новый пользователь с кодом:", code);
         }
       });
 
       // Обработчик для кнопки "Пополнить баланс"
       document.querySelector(".balance-button").addEventListener("click", async () => {
+        console.log("Нажата кнопка 'Пополнить баланс'");
         const amount = document.querySelector("#visualInput").value.replace(/\s/g, "");
-        console.log("Пополнение баланса: сумма =", amount, "userId =", userId);
+        console.log("Введенная сумма:", amount, "userId:", userId);
+
         if (!amount || isNaN(amount) || parseInt(amount) <= 0) {
           console.warn("Некорректная сумма:", amount);
           tg.showAlert("Пожалуйста, введите корректную сумму.");
           return;
         }
+
         if (!tg.initDataUnsafe.user) {
           console.error("Пользователь не авторизован");
           tg.showAlert("Ошибка: пользователь не авторизован.");
           return;
         }
-        // Отправляем команду через tg.sendData
+
+        // Отправляем запрос на пополнение через tg.sendData
         try {
-          tg.sendData(JSON.stringify({ command: "start_payment", amount: amount }));
-          console.log("Команда отправлена: /start_payment", amount);
+          const data = JSON.stringify({ action: "request_payment", amount: amount });
+          console.log("Отправка данных через tg.sendData:", data);
+          tg.sendData(data);
           tg.showAlert("Запрос на пополнение отправлен. Проверьте чат с ботом.");
         } catch (error) {
-          console.error("Ошибка отправки команды:", error);
+          console.error("Ошибка при отправке данных:", error);
           tg.showAlert("Ошибка при отправке запроса. Попробуйте позже.");
         }
       });
@@ -252,8 +266,8 @@
   <script src="./js/open_Wallet.js"></script>
   <script src="./js/copy.js"></script>
   <script src="./js/giveSpendNums.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js"></script>
   <script src="./js/firebase.js"></script>
 </body>
 
