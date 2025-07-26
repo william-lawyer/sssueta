@@ -110,7 +110,7 @@
 
     <input type="hidden" id="realInput" />
 
-    <div class="balance-button" id="balanceButton">Пополнить баланс</div>
+    <div class="balance-button">Пополнить баланс</div>
   </div>
   <div id="copy-notification" style="display: none;" class="copy-notification">
     Адрес скопирован!
@@ -135,78 +135,93 @@
   <div class="overlay" id="overlay">
   </div>
 
-  <!-- Вставьте этот код перед закрывающим тегом </body> -->
   <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      const balanceButton = document.querySelector('.balance-button');
+    window.addEventListener("DOMContentLoaded", async () => {
+      const tg = window.Telegram.WebApp;
+      tg.expand();
 
-      balanceButton.addEventListener('click', async function () {
-        console.log('Кнопка нажата'); // Для отладки
+      const user = tg.initDataUnsafe.user;
 
-        const tg = window.Telegram.WebApp;
-        const user = tg.initDataUnsafe.user;
+      // Если пользователь не зашёл через Telegram — показать заглушку
+      if (!user || !user.id) {
+        console.warn("Not in Telegram WebApp");
+        document.getElementById('user-name').textContent = "Гость";
+        document.getElementById('user-photo').src = './img/avatar.png';
+        document.getElementById('user-code').textContent = "XXXX-XXXX";
+        document.querySelector(".balance-value").textContent = `0 С`;
+        return;
+      }
 
-        if (!user || !user.id) {
-          alert('Пожалуйста, войдите через Telegram');
-          return;
-        }
+      const userId = user.id.toString();
+      const name = `${user.first_name} ${user.last_name || ''}`.trim();
+      const photoUrl = user.photo_url || './img/avatar.png';
 
-        const amount = document.getElementById('realInput').value;
-        if (!amount || amount === '0') {
-          alert('Пожалуйста, введите сумму');
-          return;
-        }
+      // Отображаем имя и фото
+      document.getElementById('user-name').textContent = name;
+      document.getElementById('user-photo').src = photoUrl;
 
-        const userId = user.id.toString();
-        const username = user.username || `${user.first_name} ${user.last_name || ''}`.trim();
+      // Инициализируем Firebase
+      const firebaseConfig = {
+        apiKey: "AIzaSyB80f5g7oANki4mhGSTtf9BQ_q_FBVoyt0",
+        authDomain: "sssueta-club.firebaseapp.com",
+        projectId: "sssueta-club",
+        storageBucket: "sssueta-club.firebasestorage.app",
+        messagingSenderId: "243713908879",
+        appId: "1:243713908879:web:36f19a718c7ee7584110fa",
+      };
 
-        try {
-          console.log('Создание платежа...'); // Для отладки
+      firebase.initializeApp(firebaseConfig);
+      const db = firebase.firestore();
+      const userRef = db.collection("users").doc(userId); // Теперь userRef объявлена до использования
 
-          // Инициализация Firebase (если еще не сделано)
-          if (!firebase.apps.length) {
-            firebase.initializeApp({
-              apiKey: "AIzaSyB80f5g7oANki4mhGSTtf9BQ_q_FBVoyt0",
-              authDomain: "sssueta-club.firebaseapp.com",
-              projectId: "sssueta-club",
-              storageBucket: "sssueta-club.appspot.com",
-              messagingSenderId: "243713908879",
-              appId: "1:243713908879:web:36f19a718c7ee7584110fa",
-            });
-          }
+      // Функция для форматирования баланса
+      function formatBalance(balance) {
+        return balance.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+      }
 
-          const db = firebase.firestore();
+      userRef.onSnapshot(async (userSnap) => {
+        if (userSnap.exists) {
+          const data = userSnap.data();
+          const code = data.code || "00000000";
+          const balance = data.balance ?? 0;
 
-          // Создаем запись о платеже
-          const paymentRef = await db.collection('payments').add({
-            userId: userId,
-            username: username,
-            amount: parseInt(amount),
-            status: 'pending',
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+          document.querySelector(".balance-value").textContent = `${formatBalance(balance)} С`;
+          document.getElementById('user-code').textContent = formatCode(code);
+        } else {
+          const code = await generateUniqueCode(db);
+          await userRef.set({
+            name,
+            photoUrl,
+            code,
+            balance: 0
           });
-
-          console.log('Платеж создан, ID:', paymentRef.id); // Для отладки
-
-          // Отправляем данные через Telegram WebApp
-          if (tg.sendData) {
-            tg.sendData(JSON.stringify({
-              type: 'payment_request',
-              paymentId: paymentRef.id,
-              amount: amount,
-              userId: userId,
-              username: username
-            }));
-            alert('Запрос отправлен. Проверьте чат с ботом для получения реквизитов.');
-          } else {
-            alert('Ошибка: функция sendData недоступна');
-          }
-        } catch (error) {
-          console.error('Ошибка:', error);
-          alert('Произошла ошибка: ' + error.message);
+          document.querySelector(".balance-value").textContent = "0 С";
+          document.getElementById('user-code').textContent = formatCode(code);
         }
       });
+
+      // Остальной код...
     });
+
+    // Форматирование кода (12345678 → 1234-5678)
+    function formatCode(code) {
+      return code.slice(0, 4) + '-' + code.slice(4, 8);
+    }
+
+    // Генерация уникального кода (проверка по Firestore)
+    async function generateUniqueCode(db) {
+      const usersRef = db.collection("users");
+      let code;
+      let exists = true;
+
+      while (exists) {
+        code = Math.floor(10000000 + Math.random() * 90000000).toString();
+        const querySnapshot = await usersRef.where("code", "==", code).get();
+        exists = !querySnapshot.empty;
+      }
+
+      return code;
+    }
   </script>
 
 
