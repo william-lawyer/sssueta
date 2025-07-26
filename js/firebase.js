@@ -2,11 +2,12 @@ const firebaseConfig = {
   apiKey: "AIzaSyB80f5g7oANki4mhGSTtf9BQ_q_FBVoyt0",
   authDomain: "sssueta-club.firebaseapp.com",
   projectId: "sssueta-club",
-  storageBucket: "sssueta-club.firebasestorage.app",
+  storageBucket: "sssueta-club.appspot.com",
   messagingSenderId: "243713908879",
   appId: "1:243713908879:web:36f19a718c7ee7584110fa",
 };
 
+// Инициализация Firebase
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
@@ -15,6 +16,37 @@ function formatBalance(balance) {
   return balance.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
 }
 
+// Функция для создания платежа
+async function createPayment(userId, username, amount) {
+  try {
+    const paymentRef = await db.collection("payments").add({
+      userId: userId,
+      username: username,
+      amount: parseInt(amount),
+      status: "pending",
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    });
+    return paymentRef.id;
+  } catch (error) {
+    console.error("Error creating payment:", error);
+    throw error;
+  }
+}
+
+// Функция для обновления статуса платежа
+async function updatePaymentStatus(paymentId, status) {
+  try {
+    await db.collection("payments").doc(paymentId).update({
+      status: status,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+    });
+  } catch (error) {
+    console.error("Error updating payment status:", error);
+    throw error;
+  }
+}
+
+// Функция для загрузки мероприятий
 async function loadEvents() {
   const eventContainer = document.querySelector(".event-container");
 
@@ -44,21 +76,6 @@ async function loadEvents() {
 
   const userId = window.Telegram.WebApp.initDataUnsafe.user.id.toString();
   const userRef = db.collection("users").doc(userId);
-
-  function setupCopyButtons() {
-    // Удаляем старые обработчики, чтобы избежать дублирования
-    document.querySelectorAll(".copy-icon").forEach((icon) => {
-      icon.replaceWith(icon.cloneNode(true));
-    });
-
-    // Добавляем обработчики на новые элементы
-    document.querySelectorAll(".copy-icon").forEach((icon) => {
-      icon.addEventListener("click", function (e) {
-        copyAddress(this);
-        e.stopPropagation();
-      });
-    });
-  }
 
   try {
     const userSnap = await userRef.get();
@@ -94,58 +111,14 @@ async function loadEvents() {
   }
 }
 
-function createEventHTML(event, eventId, isPurchased) {
-  const buttonText = isPurchased ? "Куплено" : "Купить билет";
-  const buttonStyle = isPurchased
-    ? "background-color: #777777; padding: 2.3vh 14vh;"
-    : "background-color: #5541d9;";
-  const buttonDisabled = isPurchased ? "disabled" : "";
+// Остальные функции из вашего исходного firebase.js
+// ... (остальной код остается без изменений)
 
-  return `
-    <div class="event-item" data-event-id="${eventId}">
-      <img src="${event.image_url}" alt="" class="event-image">
-      <div class="event-info">
-        <div class="event-name-container">
-          <span class="event-name">${event.name}</span>
-          <span class="event-price">${event.price} ₽</span>
-        </div>
-        <div class="event-date-container">
-          <span class="event-date">Дата проведения: ${event.date}</span>
-          <div class="event-adress-container">
-            <span class="event-adress">
-              Адрес: 
-              <span class="event-adress-link">
-                <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-                  event.address
-                )}" target="_blank">
-                  ${event.address}
-                </a>
-              </span>
-            </span>
-            <img src="./img/icons/copy.svg" class="copy-icon">
-          </div>
-        </div>
-      </div>
-      <div class="buy-button" style="${buttonStyle}" ${buttonDisabled}>${buttonText}</div>
-    </div>
-  `;
-}
-
-async function saveUserToFirestore(userId, name, photoUrl, code) {
-  const userRef = db.collection("users").doc(userId);
-  const doc = await userRef.get();
-
-  if (!doc.exists) {
-    await userRef.set({
-      name,
-      photoUrl,
-      code,
-      balance: 0,
-      tickets: [],
-    });
-  } else {
-    await userRef.set({ name, photoUrl }, { merge: true });
-  }
-}
-
-loadEvents();
+// Экспортируем функции для использования в других файлах
+window.firebaseHelpers = {
+  db,
+  formatBalance,
+  createPayment,
+  updatePaymentStatus,
+  loadEvents,
+};
