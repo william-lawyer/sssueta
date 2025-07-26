@@ -12,14 +12,128 @@
   <link rel="stylesheet" href="./css/notification.css">
   <link rel="stylesheet" href="./css/wallet.css">
   <link rel="stylesheet" href="./css/keyboard.css">
+  <style>
+  </style>
 </head>
 
 <body>
-  <!-- Весь предыдущий HTML код остается без изменений до balance-button -->
+  <div id="content" class="main-container">
+    <div class="user-container">
+      <div class="user-image">
+        <img class="user-photo" id="user-photo" src="./img/avatar.png" alt="Avatar" />
+      </div>
+      <div class="user-name" id="user-name">Имя Фамилия</div>
+      <div class="registration-date" id="reg-date">
+        Дата регистрации: 21 июня 2024
+      </div>
+    </div>
+    <div class="code">
+      <div class="text-code">Мой код:</div>
+      <div class="code-container">
+        <div class="code-base" id="user-code">XXXX-XXXX</div>
+      </div>
+    </div>
+    <div class="navbar">
+      <div class="nav-item">
+        <img class="nav-icon" src="./img/icons/user.svg" />
+      </div>
+      <div class="nav-item">
+        <img class="nav-icon" src="./img/icons/apps.svg" />
+      </div>
+      <div class="nav-item">
+        <img class="nav-icon" src="./img/icons/wallet.svg" />
+      </div>
+    </div>
+  </div>
+  <div class="event-container ">
+    <div class="event-item">
+      <img src="./img/Rectangle.png" alt="" class="event-image">
+      <div class="event-info">
+        <div class="event-name-container">
+          <span class="event-name">Название</span>
+          <span class="event-price">1000 ₽</span>
+        </div>
+        <div class="event-date-container">
+          <span class="event-date">Дата проведения: 21 июня 2024</span>
+          <div class="event-adress-container">
+            <span class="event-adress">Адрес: <span class="event-adress-link">улица Пушкина дом
+                Колотушкина</span></span>
+            <img src="./img/icons/copy.svg" alt="" class="copy-icon">
+          </div>
+        </div>
+      </div>
+      <div class="buy-button purchased">Куплено</div>
+    </div>
+    <div class="event-item">
+      <img src="./img/Rectangle.png" alt="" class="event-image">
+      <div class="event-info">
+        <div class="event-name-container">
+          <span class="event-name">Название</span>
+          <span class="event-price">1000 ₽</span>
+        </div>
+        <div class="event-date-container">
+          <span class="event-date">Дата проведения: 21 июня 2024</span>
+          <div class="event-adress-container">
+            <span class="event-adress">Адрес: <span class="event-adress-link">улица Пушкина дом
+                Колотушкина</span></span>
+            <img src="./img/icons/copy.svg" alt="" class="copy-icon">
+          </div>
+        </div>
+      </div>
+      <div class="buy-button">Купить билет</div>
+    </div>
+  </div>
+  <div class="wallet-container">
+    <img src="./img/card.png" alt="" class="card-image">
+    <div class="balance">
+      <div class="balance-text">Баланс:</div>
+      <div class="balance-value">1000 С</div>
+    </div>
+    <div class="calculator-container">
+      <div class="spend-container">
+        <span class="spend-text">Заплачу</span>
+        <div class="input-wrapper">
+          <input type="text" id="visualInput" class="ruble-flex-input" placeholder="0" inputmode="numeric" readonly />
+          <span class="ruble-symbol" id="visualRuble">₽</span>
+        </div>
+      </div>
+      <div class="line"></div>
+      <img src="./img/icons/swap.svg" class="swap-icon" alt="" />
+      <div class="give-container">
+        <span class="give-text">Получу</span>
+        <div class="input-wrapper">
+          <input type="text" id="giveInput" class="ruble-flex-input" placeholder="0" inputmode="numeric" readonly />
+          <span class="ruble-symbol" id="giveRuble">С</span>
+        </div>
+      </div>
+    </div>
 
-  <div class="balance-button" id="balanceButton">Пополнить баланс</div>
+    <input type="hidden" id="realInput" />
 
-  <!-- Остальной HTML код остается без изменений -->
+    <div class="balance-button" id="balanceButton">Пополнить баланс</div>
+  </div>
+  <div id="copy-notification" style="display: none;" class="copy-notification">
+    Адрес скопирован!
+  </div>
+
+  <div class="keyboard-container" id="keyboard">
+    <div class="keyboard">
+      <button>1</button>
+      <button>2</button>
+      <button>3</button>
+      <button>4</button>
+      <button>5</button>
+      <button>6</button>
+      <button>7</button>
+      <button>8</button>
+      <button>9</button>
+      <button>0</button>
+      <button>00</button>
+      <button>⌫</button>
+    </div>
+  </div>
+  <div class="overlay" id="overlay">
+  </div>
 
   <script>
     window.addEventListener("DOMContentLoaded", async () => {
@@ -144,6 +258,9 @@
     });
   </script>
 
+
+
+
   <script src="./js/user_Info.js"></script>
   <script src="./js/open_Events.js"></script>
   <script src="./js/open_Wallet.js"></script>
@@ -151,6 +268,8 @@
   <script src="./js/giveSpendNums.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="./js/firebase.js"></script>
+
 </body>
 
 </html>
