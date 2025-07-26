@@ -150,16 +150,18 @@ async function saveUserToFirestore(userId, name, photoUrl, code) {
 
 loadEvents();
 
-// Добавьте в конец firebase.js
-async function updateUserBalance(userId, amount) {
+// Добавьте в конец файла
+async function updateBalance(userId, amount) {
   try {
-    const userRef = db.collection("users").doc(userId);
-    await userRef.update({
-      balance: firebase.firestore.FieldValue.increment(parseInt(amount)),
-    });
+    await db
+      .collection("users")
+      .doc(userId)
+      .update({
+        balance: firebase.firestore.FieldValue.increment(parseInt(amount)),
+      });
     return true;
   } catch (error) {
-    console.error("Error updating balance:", error);
+    console.error("Balance update error:", error);
     return false;
   }
 }
