@@ -110,7 +110,7 @@
 
     <input type="hidden" id="realInput" />
 
-    <div class="balance-button">Пополнить баланс</div>
+    <div class="balance-button" id="replenish-button">Пополнить баланс</div>
   </div>
   <div id="copy-notification" style="display: none;" class="copy-notification">
     Адрес скопирован!
@@ -136,6 +136,29 @@
   </div>
 
   <script>
+    document.getElementById('replenish-button').addEventListener('click', async function () {
+      const tg = window.Telegram.WebApp;
+      const user = tg.initDataUnsafe.user;
+      const amount = document.getElementById('visualInput').value;
+
+      if (!amount || amount === '0') {
+        tg.showAlert('Введите сумму для пополнения');
+        return;
+      }
+
+      // Получаем сумму в коинах (из поля "Получу")
+      const coinsAmount = document.getElementById('giveInput').value;
+
+      // Отправляем данные в бота
+      tg.sendData(JSON.stringify({
+        action: 'replenish',
+        amount_rub: amount, // Сумма в рублях
+        amount_coins: coinsAmount, // Сумма в коинах
+        userId: user.id,
+        username: user.username || `${user.first_name} ${user.last_name || ''}`.trim()
+      }));
+    });
+
     window.addEventListener("DOMContentLoaded", async () => {
       const tg = window.Telegram.WebApp;
       tg.expand();
