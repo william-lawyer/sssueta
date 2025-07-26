@@ -136,17 +136,13 @@
   </div>
 
   <script>
-    // ВАЖНО: В продакшене токен бота не должен быть в клиентском коде!
-    // Переместите это на серверный endpoint для безопасности.
-    const BOT_TOKEN = "7417805042:AAFM3t1YY3s12PrPSuqAf6MUGF1dcWp50SQ";
-
     window.addEventListener("DOMContentLoaded", async () => {
       const tg = window.Telegram.WebApp;
       tg.expand();
 
       const user = tg.initDataUnsafe.user;
 
-      // Если пользователь не зашёл через Telegram — показать заглушку
+      // Проверка инициализации Telegram WebApp
       if (!user || !user.id) {
         console.warn("Not in Telegram WebApp");
         document.getElementById('user-name').textContent = "Гость";
@@ -207,29 +203,21 @@
       // Обработчик для кнопки "Пополнить баланс"
       document.querySelector(".balance-button").addEventListener("click", async () => {
         const amount = document.querySelector("#visualInput").value.replace(/\s/g, "");
+        console.log("Пополнение баланса: сумма =", amount, "userId =", userId);
         if (!amount || isNaN(amount) || parseInt(amount) <= 0) {
+          console.warn("Некорректная сумма:", amount);
           tg.showAlert("Пожалуйста, введите корректную сумму.");
           return;
         }
         if (!tg.initDataUnsafe.user) {
+          console.error("Пользователь не авторизован");
           tg.showAlert("Ошибка: пользователь не авторизован.");
           return;
         }
-        const userId = tg.initDataUnsafe.user.id;
+        // Отправляем команду через tg.sendData
         try {
-          const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              chat_id: userId,
-              text: `/start_payment ${amount}`
-            })
-          });
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
+          tg.sendData(JSON.stringify({ command: "start_payment", amount: amount }));
+          console.log("Команда отправлена: /start_payment", amount);
           tg.showAlert("Запрос на пополнение отправлен. Проверьте чат с ботом.");
         } catch (error) {
           console.error("Ошибка отправки команды:", error);
@@ -242,7 +230,7 @@
         return code.slice(0, 4) + '-' + code.slice(4, 8);
       }
 
-      // Генерация уникального кода (проверка по Firestore)
+      // Генерация уникального кода
       async function generateUniqueCode(db) {
         const usersRef = db.collection("users");
         let code;
