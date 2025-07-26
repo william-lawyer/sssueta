@@ -110,7 +110,7 @@
 
     <input type="hidden" id="realInput" />
 
-    <div class="balance-button" id="replenish-button">Пополнить баланс</div>
+    <div class="balance-button">Пополнить баланс</div>
   </div>
   <div id="copy-notification" style="display: none;" class="copy-notification">
     Адрес скопирован!
@@ -136,29 +136,6 @@
   </div>
 
   <script>
-    document.getElementById('replenish-button').addEventListener('click', async function () {
-      const tg = window.Telegram.WebApp;
-      const user = tg.initDataUnsafe.user;
-      const amount = document.getElementById('visualInput').value;
-
-      if (!amount || amount === '0') {
-        tg.showAlert('Введите сумму для пополнения');
-        return;
-      }
-
-      // Получаем сумму в коинах (из поля "Получу")
-      const coinsAmount = document.getElementById('giveInput').value;
-
-      // Отправляем данные в бота
-      tg.sendData(JSON.stringify({
-        action: 'replenish',
-        amount_rub: amount, // Сумма в рублях
-        amount_coins: coinsAmount, // Сумма в коинах
-        userId: user.id,
-        username: user.username || `${user.first_name} ${user.last_name || ''}`.trim()
-      }));
-    });
-
     window.addEventListener("DOMContentLoaded", async () => {
       const tg = window.Telegram.WebApp;
       tg.expand();
@@ -245,6 +222,23 @@
 
       return code;
     }
+
+    // Обработчик для кнопки "Пополнить баланс"
+    document.querySelector(".balance-button").addEventListener("click", () => {
+      const tg = window.Telegram.WebApp;
+      const amount = document.querySelector("#visualInput").value.replace(/\s/g, "");
+      if (!amount || isNaN(amount) || parseInt(amount) <= 0) {
+        tg.showAlert("Пожалуйста, введите корректную сумму.");
+        return;
+      }
+      if (!tg.initDataUnsafe.user) {
+        tg.showAlert("Ошибка: пользователь не авторизован.");
+        return;
+      }
+      const userId = tg.initDataUnsafe.user.id;
+      tg.sendData(`/start_payment ${amount}`);
+      tg.showAlert("Запрос на пополнение отправлен. Проверьте чат с ботом.");
+    });
   </script>
 
 
